@@ -904,7 +904,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
   return (
     <section className="space-y-4">
-      <div className="bg-white dark:bg-[#242c3d] p-4 rounded-xl border border-slate-200 dark:border-[#3e4859] shadow-xs space-y-4">
+      <div className="bg-white dark:bg-[#242c3d] p-2.5 sm:p-4 rounded-xl border border-slate-200 dark:border-[#3e4859] shadow-xs space-y-4">
         {/* Top Header & Actions */}
         <div className="flex flex-wrap justify-between items-center gap-3 pb-3 border-b border-slate-200 dark:border-[#3e4859]">
           <div>
@@ -1124,15 +1124,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
 
         {/* Filter Switcher & Search Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 dark:bg-[#2d3748]/60 p-2.5 rounded-lg border border-slate-200 dark:border-[#3e4859]">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-slate-50 dark:bg-[#2d3748]/60 p-2.5 rounded-lg border border-slate-200 dark:border-[#3e4859] w-full max-w-full overflow-hidden">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full lg:w-auto min-w-0 max-w-full">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1 shrink-0">
               <Filter className="w-3 h-3 text-slate-400" /> Report Table:
             </span>
-            <div className="flex gap-1 bg-[#f3f4f6] dark:bg-[#242c3d] p-0.5 rounded border border-slate-200 dark:border-[#3e4859]">
+            <div className="flex items-center gap-1 overflow-x-auto max-w-full w-full no-scrollbar whitespace-nowrap bg-[#f3f4f6] dark:bg-[#242c3d] p-1 rounded-lg border border-slate-200 dark:border-[#3e4859] shrink-0">
               <button
                 onClick={() => setReportType('operations')}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer shrink-0 ${
                   reportType === 'operations' ? 'bg-white dark:bg-[#2d3748] text-blue-600 dark:text-blue-400 shadow-xs font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -1140,7 +1140,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </button>
               <button
                 onClick={() => setReportType('plan')}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer shrink-0 ${
                   reportType === 'plan' ? 'bg-white dark:bg-[#2d3748] text-blue-600 dark:text-blue-400 shadow-xs font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -1148,7 +1148,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </button>
               <button
                 onClick={() => setReportType('security')}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer shrink-0 ${
                   reportType === 'security' ? 'bg-white dark:bg-[#2d3748] text-blue-600 dark:text-blue-400 shadow-xs font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -1156,7 +1156,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </button>
               <button
                 onClick={() => setReportType('transporter_summary')}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer shrink-0 ${
                   reportType === 'transporter_summary' ? 'bg-white dark:bg-[#2d3748] text-indigo-600 dark:text-indigo-400 shadow-xs font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -1164,7 +1164,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </button>
               <button
                 onClick={() => setReportType('monthly')}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded text-xs font-semibold transition cursor-pointer shrink-0 ${
                   reportType === 'monthly' ? 'bg-white dark:bg-[#2d3748] text-orange-600 dark:text-orange-400 shadow-xs font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -1174,18 +1174,18 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
 
           {/* Quick Search & Company Filter */}
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+            <div className="relative flex-1 sm:flex-initial">
               <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Filter Vehicle, Location, Transporter..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 pr-3 py-1.5 text-xs rounded border border-slate-300 dark:border-[#3e4859] bg-[#f3f4f6] dark:bg-[#242c3d] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none w-56"
+                className="pl-8 pr-3 py-1.5 text-xs rounded border border-slate-300 dark:border-[#3e4859] bg-[#f3f4f6] dark:bg-[#242c3d] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none w-full sm:w-56"
               />
             </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f3f4f6] dark:bg-[#242c3d] border border-blue-400/60 dark:border-blue-500/60 rounded">
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f3f4f6] dark:bg-[#242c3d] border border-blue-400/60 dark:border-blue-500/60 rounded flex-1 sm:flex-initial justify-between sm:justify-start">
               <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
               <input
                 id="report-date-selector"
@@ -1193,7 +1193,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 value={reportDateFilter}
                 onChange={(e) => handleReportDateChange(e.target.value)}
                 title="Active report date filter - synchronized with dashboard"
-                className="py-0.5 px-1 text-xs bg-transparent text-slate-800 dark:text-slate-100 font-bold focus:outline-none cursor-pointer"
+                className="py-0.5 px-1 text-xs bg-transparent text-slate-800 dark:text-slate-100 font-bold focus:outline-none cursor-pointer w-full"
               />
               {reportDateFilter && (
                 <button
@@ -1219,7 +1219,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
 
         {/* Scrollable Table Render */}
-        <div className="overflow-x-auto overflow-y-auto max-h-[520px] border border-slate-200 dark:border-[#3e4859] rounded-lg">
+        <div className="overflow-x-auto overflow-y-auto max-h-[560px] w-full max-w-full border border-slate-200 dark:border-[#3e4859] rounded-lg">
           {reportType === 'transporter_summary' ? (
             <div className="p-4 space-y-5 bg-white dark:bg-[#1a202c] text-slate-800 dark:text-slate-100">
               {/* Header & Controls */}

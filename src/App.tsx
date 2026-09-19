@@ -875,8 +875,8 @@ export default function App() {
 
   // 2. Main Application Screen (High Density Architecture)
   return (
-    <div className="min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
-      <div className="flex flex-1 min-h-0">
+    <div className="min-h-screen max-w-full overflow-x-hidden w-full flex flex-col selection:bg-blue-600 selection:text-white">
+      <div className="flex flex-1 min-h-0 w-full max-w-full overflow-x-hidden">
         {/* Left Sidebar - Modern Clean White / Pastel Blue Navigation */}
         <aside className="hidden md:flex w-72 bg-white text-slate-700 border-r border-slate-200/80 flex-col justify-between p-4 min-h-screen sticky top-0 shrink-0 select-none shadow-xs">
           <div className="space-y-4">
@@ -1219,7 +1219,7 @@ export default function App() {
         </aside>
 
         {/* Main Workspace Area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-[var(--bg-main)] text-slate-900 dark:text-slate-100">
+        <div className="flex-1 flex flex-col min-w-0 w-full max-w-full overflow-x-hidden bg-[var(--bg-main)] text-slate-900 dark:text-slate-100">
           {/* Top Header - Modern Clean Utility Toolbar */}
           <header className="h-14 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-6 flex justify-between items-center sticky top-0 z-30 shadow-2xs">
             <div className="flex items-center gap-3">
@@ -1346,7 +1346,7 @@ export default function App() {
           </header>
 
           {/* Main Content Views */}
-          <main className="p-4 md:p-6 pb-28 md:pb-6 space-y-5 flex-1">
+          <main className="px-1.5 py-2 sm:px-4 md:px-6 pb-28 md:pb-6 space-y-3 sm:space-y-5 flex-1 w-full max-w-full overflow-x-hidden">
             {isSecurity ? (
               <GateSecurityView
                 activeOperations={loadEntries}
@@ -1652,7 +1652,7 @@ export default function App() {
     </div>
 
       {/* Mobile Bottom Navigation Bar (Visible Strictly on Mobile Screens <= 768px, Hidden completely on Desktop/Laptop) */}
-      <div className="mobile-bottom-nav mobile-bottom-dock hidden max-md:flex md:hidden fixed bottom-0 left-0 right-0 w-full px-2 py-1.5 justify-around items-center z-50 overflow-x-auto no-scrollbar bg-slate-900 border-t border-sky-500/40 shadow-2xl">
+      <div className="mobile-bottom-nav mobile-bottom-dock hidden max-md:flex md:hidden fixed bottom-0 left-0 right-0 w-full max-w-full px-1.5 py-1.5 justify-around items-center z-50 overflow-x-auto no-scrollbar bg-slate-900 border-t border-sky-500/40 shadow-2xl">
         {isSecurity ? (
           <button
             onClick={() => handleSwitchView('gateSecView')}

@@ -308,7 +308,7 @@ export const PlanView: React.FC<PlanViewProps> = ({
 
   return (
     <section className="space-y-4">
-      <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 shadow-xs space-y-4">
+      <div className="bg-white dark:bg-slate-800 p-2.5 sm:p-4 rounded border border-slate-200 dark:border-slate-700 shadow-xs space-y-4">
         {/* Header Controls */}
         <div className="flex flex-wrap justify-between items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
           <div>

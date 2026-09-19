@@ -382,7 +382,7 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
   return (
     <div className="flex flex-col space-y-5">
       {/* PC Mode Top Breadcrumb & Title Bar */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/80 p-4 md:p-5 shadow-xs">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/80 p-2.5 sm:p-4 md:p-5 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-2xs">

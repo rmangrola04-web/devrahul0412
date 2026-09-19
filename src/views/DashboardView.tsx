@@ -562,7 +562,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
           
           {/* Card 1: CONSOLIDATED LOADING VEHICLES CARD (AIL & AHPL IN ONE CARD) */}
-          <div className="widget-card bg-amber-50/80 dark:bg-[#242c3d] rounded-2xl border border-amber-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3.5 sm:p-5 space-y-4 max-w-full overflow-hidden">
+          <div className="widget-card bg-amber-50/80 dark:bg-[#242c3d] rounded-2xl border border-amber-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-5 space-y-3.5 max-w-full overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-amber-950 dark:text-amber-300 pb-3 border-b border-amber-200/80 dark:border-[#3e4859] min-w-0">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <div className="p-2 sm:p-2.5 rounded-xl bg-amber-500 text-white shadow-xs shrink-0">
@@ -654,7 +654,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Card 2: CONSOLIDATED UNLOADING VEHICLES CARD (SEPARATE UNLOADING CARD FOR AIL & AHPL) */}
-          <div className="widget-card bg-blue-50/80 dark:bg-[#242c3d] rounded-2xl border border-blue-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3.5 sm:p-5 space-y-4 max-w-full overflow-hidden">
+          <div className="widget-card bg-blue-50/80 dark:bg-[#242c3d] rounded-2xl border border-blue-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-5 space-y-3.5 max-w-full overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-blue-950 dark:text-blue-300 pb-3 border-b border-blue-200/80 dark:border-[#3e4859] min-w-0">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <div className="p-2 sm:p-2.5 rounded-xl bg-blue-600 text-white shadow-xs shrink-0">
@@ -751,7 +751,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       
       {/* Main Dashboard Interactive Reports Section */}
-      <div className="bg-white dark:bg-[#242c3d] p-4 rounded-xl border border-slate-200 dark:border-[#3e4859] shadow-xs space-y-3">
+      <div className="bg-white dark:bg-[#242c3d] p-2.5 sm:p-4 rounded-xl border border-slate-200 dark:border-[#3e4859] shadow-xs space-y-3">
         
         {/* Top Header & Table Switcher */}
         <div className="flex flex-wrap items-center justify-between gap-3 pb-2.5 border-b border-slate-200 dark:border-[#3e4859]">

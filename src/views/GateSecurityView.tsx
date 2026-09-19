@@ -354,7 +354,7 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
         </div>
       )}
 
-      <div className="flex-1 p-4 lg:p-6 flex justify-center items-start overflow-y-auto custom-scrollbar">
+      <div className="flex-1 p-2 sm:p-4 lg:p-6 flex justify-center items-start overflow-y-auto custom-scrollbar">
         
         {/* CENTERED COLUMN: STRICT 11-FIELD SECURITY GUARD GATE ENTRY FORM */}
         <div className="w-full max-w-2xl space-y-4">

@@ -57,6 +57,12 @@
 }
 
 /* Base Body Styles with Tech 4K Glow Gradient & Anti-Aliased Typography */
+html, body, #root {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  width: 100% !important;
+}
+
 body {
   background-color: var(--bg-main) !important;
   color: var(--text-main) !important;

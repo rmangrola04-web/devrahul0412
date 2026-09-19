@@ -146,7 +146,7 @@ export const AnimatedStatusChip: React.FC<AnimatedStatusChipProps> = ({
       key={normStatus}
       initial={{ scale: 0.82, opacity: 0, y: -2 }}
       animate={{ 
-        scale: [0.92, 1.08, 1],
+        scale: 1,
         opacity: 1, 
         y: 0 
       }}
