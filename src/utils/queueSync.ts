@@ -173,6 +173,38 @@ export function isPendingGateEntry(veh: SecurityGateEntry, loadEntries: LoadUnlo
 }
 
 /**
+ * Resolves the actual target location / destination for a gate entry,
+ * preventing generic 'Warehouse' from masking the real location in the waiting queue.
+ */
+export function resolveQueueActualLocation(veh: SecurityGateEntry, isUnloadVeh: boolean): string {
+  // 1. Check explicit target_location or destination
+  const explicit = (veh.target_location || (veh as any).destination || (veh as any).targetLocation || (veh as any).location || '')?.trim();
+  if (explicit && explicit.toUpperCase() !== 'WAREHOUSE' && explicit.toUpperCase() !== 'UNASSIGNED') {
+    return explicit;
+  }
+
+  const fromTrim = (veh.fromLoc || '').trim();
+  const toTrim = (veh.toLoc || '').trim();
+
+  const isFromValid = fromTrim && fromTrim.toUpperCase() !== 'WAREHOUSE' && fromTrim.toUpperCase() !== 'UNASSIGNED';
+  const isToValid = toTrim && toTrim.toUpperCase() !== 'WAREHOUSE' && toTrim.toUpperCase() !== 'UNASSIGNED';
+
+  if (isUnloadVeh) {
+    if (isFromValid) return fromTrim;
+    if (isToValid) return toTrim;
+  } else {
+    if (isToValid) return toTrim;
+    if (isFromValid) return fromTrim;
+  }
+
+  if (explicit) return explicit;
+  if (fromTrim && fromTrim.toUpperCase() !== 'WAREHOUSE') return fromTrim;
+  if (toTrim && toTrim.toUpperCase() !== 'WAREHOUSE') return toTrim;
+
+  return 'INDORE HUB';
+}
+
+/**
  * Centralized, authoritative calculation of active items in the Waiting Queue.
  * Synchronizes gate arrivals with active and completed dock operations.
  * Strictly displays only records with pending/waiting status (waiting for dock assignment)
@@ -193,7 +225,9 @@ export function computeWaitingQueueItems(
     const queueKey = veh.id;
     if (dismissedQueueKeys && dismissedQueueKeys.has(queueKey)) return;
 
+    // 1. Guard ke dwara select kiya gaya purpose (Loading/Unloading) hi Waiting Queue me show hona chahiye.
     const isUnloadVeh = isUnloadingPurpose(veh.purpose);
+    const authoritativePurpose: 'Loading' | 'Unloading' = isUnloadVeh ? 'Unloading' : 'Loading';
 
     // Build target locations / destinations for this vehicle arrival
     const targets: { location: string; unit: string }[] = [];
@@ -211,7 +245,8 @@ export function computeWaitingQueueItems(
         }
       });
     } else {
-      const rawLoc = !isUnloadVeh ? (veh.toLoc || 'INDORE HUB') : (veh.fromLoc || 'INDORE HUB');
+      // 2. Waiting Queue me sirf 'Warehouse' likhne ki jagah actual selected location/destination show honi chahiye.
+      const rawLoc = resolveQueueActualLocation(veh, isUnloadVeh);
       const splitLocs = rawLoc.split(/[/,]/).map((s) => s.trim()).filter(Boolean);
       const locList = splitLocs.length > 0 ? splitLocs : [rawLoc.trim() || 'INDORE HUB'];
       const u = veh.unit?.trim().toUpperCase() || 'AHPL';
@@ -237,6 +272,9 @@ export function computeWaitingQueueItems(
     const isToday = isWmsLogToday(veh.dateTime, veh.entryDate);
     const isCarriedForward = veh.isCarriedForward || !isToday;
 
+    const resolvedLocation = uniqueTargets[0]?.location || resolveQueueActualLocation(veh, isUnloadVeh);
+    const targetDivision = veh.unit || 'AIL';
+
     items.push({
       queueKey,
       gateId: veh.id,
@@ -245,9 +283,10 @@ export function computeWaitingQueueItems(
       vType: veh.vType || '32FT MXL',
       mobile: veh.mobile || 'N/A',
       transporter: veh.transporter || 'N/A',
-      purpose: isUnloadVeh ? 'Unloading' : 'Loading',
-      unit: veh.unit || 'AHPL',
-      location: uniqueTargets[0]?.location || 'INDORE HUB',
+      purpose: authoritativePurpose,
+      unit: targetDivision,
+      location: resolvedLocation,
+      target_location: resolvedLocation,
       dateTime: veh.dateTime || '',
       remarks: veh.remarks || veh.supervisorNameRemarks,
       grNo: veh.grNo,
@@ -255,7 +294,7 @@ export function computeWaitingQueueItems(
       isSplit: uniqueTargets.length > 1,
       totalLocationsInEntry: uniqueTargets.length,
       originalGateEntry: veh,
-      allTargets: uniqueTargets,
+      allTargets: uniqueTargets.length > 0 ? uniqueTargets : [{ location: resolvedLocation, unit: targetDivision }],
       isCarriedForward,
       status: veh.status || (isCarriedForward ? 'Rollover Pending' : 'Waiting'),
       completed: false,
@@ -264,3 +303,4 @@ export function computeWaitingQueueItems(
 
   return items;
 }
+

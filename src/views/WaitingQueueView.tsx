@@ -744,12 +744,8 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
             const isLoad = item.purpose === 'Loading';
             const waitInfo = getWaitStatusInfo(item.dateTime);
             const purposeColor = isLoad
-              ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800'
-              : 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800';
-
-            const otherDestinations = (item.originalGateEntry.milkRouteDestinations || []).filter(
-              (m) => m.location.toLowerCase() !== item.location.toLowerCase() || (m.unit && m.unit !== item.unit)
-            );
+              ? 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-700'
+              : 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-700';
 
             return (
               <div
@@ -767,7 +763,7 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                       ? 'bg-rose-500'
                       : isLoad
                       ? 'bg-amber-500'
-                      : 'bg-blue-500'
+                      : 'bg-emerald-500'
                   }`}
                 />
 
@@ -782,18 +778,18 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                         {item.transporter || 'Transporter N/A'} {item.vType ? `• ${item.vType}` : ''}
                       </span>
                     </div>
-                    <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
-                      {item.unit || 'AHPL'}
+                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
+                      {item.unit || 'AIL'}
                     </span>
                   </div>
 
                   {/* Purpose & Wait Status Badge Row */}
                   <div className="flex items-center justify-between gap-1 mb-2 pl-1">
                     <span
-                      className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border inline-flex items-center gap-1 ${purposeColor}`}
+                      className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border inline-flex items-center gap-1 ${purposeColor}`}
                     >
                       {isLoad ? <UploadCloud className="w-2.5 h-2.5" /> : <DownloadCloud className="w-2.5 h-2.5" />}
-                      {item.purpose}
+                      {item.purpose.toUpperCase()}
                     </span>
 
                     {/* Color-coded Visual Status Badge indicating waiting duration */}
@@ -807,12 +803,12 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                     </span>
                   </div>
 
-                  {/* Route & Destination Area */}
-                  <div className="bg-slate-50 dark:bg-slate-900/60 p-2 rounded-lg border border-slate-200 dark:border-slate-700 mb-2 pl-2 space-y-1.5">
-                    <div className="flex items-center justify-between text-[9px]">
-                      <span className="font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                        <MapPin className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
-                        Pending Destinations
+                  {/* Route & Destination Area (Actual selected location instead of just 'Warehouse') */}
+                  <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 mb-2 pl-2 space-y-1.5">
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                        <span>{item.location} ({item.unit || 'AIL'})</span>
                       </span>
                       <span className="font-bold text-[8px] text-slate-400">{item.routeType || 'Single Drop'}</span>
                     </div>
@@ -838,6 +834,7 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                       ))}
                     </div>
                   </div>
+
 
                   {/* Driver Contact & Gate In Time */}
                   <div className="flex items-center justify-between text-[9px] text-slate-500 dark:text-slate-400 px-1 mb-2">
@@ -922,17 +919,17 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                         <span
                           className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border inline-flex items-center gap-1 ${
                             isLoad
-                              ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800'
-                              : 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800'
+                              ? 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-700'
+                              : 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-700'
                           }`}
                         >
                           {isLoad ? <UploadCloud className="w-3 h-3" /> : <DownloadCloud className="w-3 h-3" />}
-                          {item.purpose}
+                          {item.purpose.toUpperCase()}
                         </span>
                       </td>
                       <td className="py-2.5 px-3">
                         <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                          {item.unit || 'AHPL'}
+                          {item.unit || 'AIL'}
                         </span>
                       </td>
                       <td className="py-2.5 px-3">
@@ -944,7 +941,9 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                       <td className="py-2.5 px-3">
                         <div className="flex items-center gap-1.5">
                           <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                          <span className="font-bold text-slate-900 dark:text-white">{item.location}</span>
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            {item.location} ({item.unit || 'AIL'})
+                          </span>
                           {item.isSplit && (
                             <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200">
                               Split

@@ -107,6 +107,8 @@ export interface SecurityGateEntry {
   multiDestinations?: string[];
   status?: string;
   isCarriedForward?: boolean;
+  destination?: string;
+  target_location?: string;
 }
 
 export interface WaitingQueueItem {
@@ -120,6 +122,7 @@ export interface WaitingQueueItem {
   purpose: 'Loading' | 'Unloading' | 'Parking / Transit';
   unit: string;
   location: string;
+  target_location?: string;
   dateTime: string;
   remarks?: string;
   grNo?: string;

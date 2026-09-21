@@ -232,4 +232,101 @@ if (typeof window !== 'undefined') {
   (window as any).filterValidLocations = filterValidLocations;
   (window as any).mapGuardToSupervisorActivity = mapGuardToSupervisorActivity;
   (window as any).handleFormSubmission = handleFormSubmission;
+  (window as any).mapGateEntryData = mapGateEntryData;
+  (window as any).renderWaitingQueueCard = renderWaitingQueueCard;
+}
+
+/**
+ * 5. Guard Form Submission / Data Saving Logic
+ * Guard ke dwara select kiya gaya purpose (Loading/Unloading) hi Waiting Queue me show hona chahiye.
+ * Waiting Queue me sirf 'Warehouse' likhne ki jagah actual selected location/destination capture karein.
+ */
+export function mapGateEntryData(formInput: {
+  vehicle_number?: string;
+  vehicleNo?: string;
+  vehicle?: string;
+  transporter?: string;
+  company_division?: string;
+  division?: string;
+  unit?: string;
+  purpose?: string;
+  activity_type?: string;
+  target_location_destination?: string;
+  warehouse_name?: string;
+  destination?: string;
+  fromLoc?: string;
+  toLoc?: string;
+  [key: string]: any;
+}) {
+  const vehicle = (formInput.vehicle_number || formInput.vehicleNo || formInput.vehicle || '').trim().toUpperCase();
+  const transporter = (formInput.transporter || 'N/A').trim();
+  const division = formInput.company_division || formInput.division || formInput.unit || 'AIL';
+  
+  // Guard purpose normalization: honor exact guard purpose
+  const rawPurpose = formInput.purpose || formInput.activity_type || 'Loading';
+  const isUnload = String(rawPurpose).toUpperCase().includes('UNLOAD');
+  const purpose: 'Loading' | 'Unloading' = isUnload ? 'Unloading' : 'Loading';
+
+  // Target location properly captured instead of defaulting to generic 'Warehouse'
+  let targetLocation = formInput.target_location_destination || 
+                       formInput.destination || 
+                       (isUnload ? formInput.fromLoc : formInput.toLoc) ||
+                       formInput.warehouse_name;
+
+  if (!targetLocation || targetLocation.toUpperCase() === 'WAREHOUSE') {
+    if (formInput.toLoc && formInput.toLoc.toUpperCase() !== 'WAREHOUSE') {
+      targetLocation = formInput.toLoc;
+    } else if (formInput.fromLoc && formInput.fromLoc.toUpperCase() !== 'WAREHOUSE') {
+      targetLocation = formInput.fromLoc;
+    } else {
+      targetLocation = 'INDORE HUB';
+    }
+  }
+
+  return {
+    vehicle_number: vehicle,
+    transporter: transporter,
+    division: division, // AIL ya AHPL
+    // Purpose ko exact map karein jo guard ne select kiya hai (Loading/Unloading)
+    purpose: purpose,
+    // Target location ko properly capture karein taki queue me dikh sake
+    target_location: targetLocation,
+    status: 'PENDING_QUEUE'
+  };
+}
+
+/**
+ * 6. Waiting Queue UI Render Logic (Waiting for Loading/Unloading Card View)
+ */
+export function renderWaitingQueueCard(vehicleData: {
+  vehicle_number?: string;
+  vehicle?: string;
+  purpose?: string;
+  target_location?: string;
+  location?: string;
+  division?: string;
+  unit?: string;
+  [key: string]: any;
+}): string {
+  const vehicleNo = vehicleData.vehicle_number || vehicleData.vehicle || 'UNKNOWN';
+  // Guard ne jo purpose select kiya hai, vahi badge/status me show hoga (Na ki hardcoded Loading)
+  const currentPurpose = vehicleData.purpose ? vehicleData.purpose.toUpperCase() : "LOADING";
+  
+  // Location name ko dynamic banana taki sirf "Warehouse" na aakar exact location aaye
+  const rawLoc = vehicleData.target_location || vehicleData.location || "Warehouse";
+  const exactLocation = (rawLoc.toUpperCase() === 'WAREHOUSE' && vehicleData.destination) ? vehicleData.destination : rawLoc;
+  const divisionName = vehicleData.division || vehicleData.unit || "AIL";
+
+  return `
+      <div class="waiting-card">
+          <div class="vehicle-title">${vehicleNo}</div>
+          <div class="badge-purpose">${currentPurpose}</div>
+          <div class="division-tag">${divisionName}</div>
+          
+          <div class="location-details">
+              <span class="loc-icon">📍</span> 
+              <span>${exactLocation} (${divisionName})</span>
+          </div>
+      </div>
+  `;
 }

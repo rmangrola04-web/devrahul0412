@@ -718,6 +718,43 @@
       });
     }
 
+    // 1. Guard Form Submission / Data Saving Logic
+    function mapGateEntryData(formInput) {
+      return {
+        vehicle_number: formInput.vehicle_number,
+        transporter: formInput.transporter,
+        division: formInput.company_division, // AIL ya AHPL
+        // Purpose ko exact map karein jo guard ne select kiya hai (Loading/Unloading)
+        purpose: formInput.purpose, 
+        // Target location ko properly capture karein taki queue me dikh sake
+        target_location: formInput.target_location_destination || formInput.warehouse_name || "Warehouse",
+        status: "PENDING_QUEUE"
+      };
+    }
+
+    // 2. Waiting Queue UI Render Logic (Waiting for Loading/Unloading Card View)
+    function renderWaitingQueueCard(vehicleData) {
+      // Guard ne jo purpose select kiya hai, vahi badge/status me show hoga (Na ki hardcoded Loading)
+      const currentPurpose = vehicleData.purpose ? vehicleData.purpose.toUpperCase() : "LOADING";
+      
+      // Location name ko dynamic banana taki sirf "Warehouse" na aakar exact location aaye
+      const exactLocation = vehicleData.target_location ? vehicleData.target_location : "Warehouse";
+      const divisionName = vehicleData.division ? vehicleData.division : "AIL";
+
+      return `
+        <div class="waiting-card">
+          <div class="vehicle-title">${vehicleData.vehicle_number}</div>
+          <div class="badge-purpose">${currentPurpose}</div>
+          <div class="division-tag">${divisionName}</div>
+          
+          <div class="location-details">
+            <span class="loc-icon">📍</span> 
+            <span>${exactLocation} (${divisionName})</span>
+          </div>
+        </div>
+      `;
+    }
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const purpose = purposeSelect.value;
@@ -745,18 +782,35 @@
 
       const authoritativePurpose = syncResult.syncedData.activity_type === 'UNLOADING' ? 'Unloading' : 'Loading';
 
+      // 1. Guard Form Submission / Data Saving Logic: Exact purpose and actual target location
+      const mapped = mapGateEntryData({
+        vehicle_number: vehicle,
+        transporter: transporterSelect.value,
+        company_division: co,
+        purpose: authoritativePurpose,
+        target_location_destination: locationSelect.value,
+        warehouse_name: locationSelect.value
+      });
+
       const newEntry = {
         id: 'LOG_' + Date.now(),
-        purpose: authoritativePurpose,
-        company: co,
+        purpose: mapped.purpose,
+        company: mapped.division,
+        division: mapped.division,
+        unit: mapped.division,
         grNo: cnt,
-        vehicleNo: vehicle,
+        vehicleNo: mapped.vehicle_number,
+        vehicle: mapped.vehicle_number,
         vType: vehicleTypeSelect.value,
         mobile: mobile,
-        transporter: transporterSelect.value,
-        destination: locationSelect.value,
+        transporter: mapped.transporter,
+        destination: mapped.target_location,
+        target_location: mapped.target_location,
+        fromLoc: mapped.purpose === 'Unloading' ? mapped.target_location : 'WAREHOUSE',
+        toLoc: mapped.purpose === 'Loading' ? mapped.target_location : 'WAREHOUSE',
         dateTime: dateTimeInput.value,
-        remarks: remarksInput.value || 'Gate Remarks / Seal Verified'
+        remarks: remarksInput.value || 'Gate Remarks / Seal Verified',
+        status: mapped.status
       };
 
       const existing = getLogs();

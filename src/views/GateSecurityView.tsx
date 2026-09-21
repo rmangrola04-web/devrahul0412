@@ -3,7 +3,7 @@ import { Truck, ShieldCheck, CheckCircle, Pencil, Trash2, Sparkles, Hash, Clock,
 import { SecurityGateEntry, LoadUnloadEntry, ShuttleStep, PlanEntry } from '../types';
 import { DOCK_CONFIG } from '../data/defaultData';
 import { matchesWmsDateFilter } from '../utils/wmsDataEngine';
-import { handleFormSubmission, filterValidLocations } from '../utils/activitySync';
+import { handleFormSubmission, filterValidLocations, mapGateEntryData } from '../utils/activitySync';
 
 interface GateSecurityViewProps {
   activeOperations: LoadUnloadEntry[];
@@ -324,20 +324,32 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
       : routeType === 'Milk Route' && milkRouteDestinations.length > 0 
       ? milkRouteDestinations.map(m => `${m.location} [${m.unit}]`).join(' / ')
       : destination;
-    
+
+    // 1. Guard Form Submission / Data Saving Logic: Exact purpose and actual target location
+    const mapped = mapGateEntryData({
+      vehicle_number: cleanVehicle,
+      transporter: transporter || 'N/A',
+      company_division: loadDivision,
+      purpose: purpose,
+      target_location_destination: combinedDestination || destination,
+      warehouse_name: combinedDestination || destination
+    });
+
     const newLog: SecurityGateEntry = {
       id: `GATE-${Date.now()}`,
-      purpose: authoritativePurpose,
-      vehicle: cleanVehicle,
+      purpose: mapped.purpose,
+      vehicle: mapped.vehicle_number,
       vType: vType,
       mobile: 'N/A',
-      transporter: transporter || 'N/A',
-      fromLoc: authoritativePurpose === 'Unloading' ? combinedDestination : 'WAREHOUSE',
-      toLoc: authoritativePurpose === 'Loading' ? combinedDestination : 'WAREHOUSE',
+      transporter: mapped.transporter,
+      fromLoc: mapped.purpose === 'Unloading' ? mapped.target_location : 'WAREHOUSE',
+      toLoc: mapped.purpose === 'Loading' ? mapped.target_location : 'WAREHOUSE',
+      destination: mapped.target_location,
+      target_location: mapped.target_location,
       dateTime: dateTime || getCurrentFormattedDateTime(),
       entryDate: entryDate || getCurrentDate(),
       remarks: supervisorNameRemarks,
-      unit: loadDivision,
+      unit: mapped.division,
       grNo: '', 
       routeType: isRailAirOrCourier ? 'Milk Route' : routeType,
       milkRouteDestinations: (isRailAirOrCourier || routeType === 'Milk Route') ? milkRouteDestinations : [],
@@ -346,7 +358,8 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
       loadingExitTime: loadingExitTime,
       totalCases: totalCases,
       supervisorNameRemarks: supervisorNameRemarks,
-      multiDestinations: isRailAirOrCourier ? selectedMultiDestinations : []
+      multiDestinations: isRailAirOrCourier ? selectedMultiDestinations : [],
+      status: 'PENDING_QUEUE'
     };
 
     onAddGateEntry(newLog);
