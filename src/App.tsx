@@ -1398,6 +1398,7 @@ export default function App() {
                   }}
                   loadEntries={wmsData.filteredLoadEntries}
                   securityLogs={wmsData.filteredSecurityLogs}
+                  allSecurityLogs={securityLogs}
                   supervisors={supervisors}
                   transporters={transporters}
                   loadLocations={loadLocations}
@@ -1500,6 +1501,7 @@ export default function App() {
                     }}
                     loadEntries={wmsData.filteredLoadEntries}
                     securityLogs={wmsData.filteredSecurityLogs}
+                    allSecurityLogs={securityLogs}
                     supervisors={supervisors}
                     transporters={transporters}
                     loadLocations={loadLocations}

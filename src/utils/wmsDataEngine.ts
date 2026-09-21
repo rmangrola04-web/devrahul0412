@@ -370,27 +370,11 @@ export function processWMSDataEngine(
   const filteredLoadEntries = loadEntries.filter(l => {
     const lDate = getOpRecordDate(l);
     return matchesWmsDateFilter(lDate, selectedDate, startDate, endDate, filterType);
-  }).map(l => {
-    const unit = (l.unit || '').toUpperCase();
-    const isAil = unit.includes('AIL');
-    if (isAil) {
-      // Rule 1: AIL data is strictly routed to Loading
-      return { ...l, opType: 'LOADING' as const } as LoadUnloadEntry;
-    }
-    return l as LoadUnloadEntry;
   });
 
   const filteredSecurityLogs = securityLogs.filter(s => {
     const sDate = getGateRecordDate(s);
     return matchesWmsDateFilter(sDate, selectedDate, startDate, endDate, filterType);
-  }).map(s => {
-    const unit = (s.unit || '').toUpperCase();
-    const isAil = unit.includes('AIL') || (!s.unit && Number(s.grNo) < 691 && Number(s.grNo) >= 616);
-    if (isAil) {
-      // Rule 1: AIL data is strictly routed to Loading
-      return { ...s, purpose: 'Loading' as const } as SecurityGateEntry;
-    }
-    return s as SecurityGateEntry;
   });
 
   // 3. Waiting Queue calculation strictly for selected date (no stale carryover from old dates)

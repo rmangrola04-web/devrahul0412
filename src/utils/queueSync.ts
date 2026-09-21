@@ -48,7 +48,7 @@ export function parseWmsDate(dateStr?: string): Date | null {
 export function isUnloadingPurpose(purpose?: string): boolean {
   if (!purpose) return false;
   const p = purpose.trim().toLowerCase();
-  return p === 'unloading' || (p.includes('unload') && !p.startsWith('load'));
+  return p === 'unloading' || p.includes('unload');
 }
 
 export function isLoadingPurpose(purpose?: string): boolean {

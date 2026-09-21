@@ -12,6 +12,7 @@ interface LoadUnloadViewProps {
   onClearInitialGateId?: () => void;
   loadEntries: LoadUnloadEntry[];
   securityLogs: SecurityGateEntry[];
+  allSecurityLogs?: SecurityGateEntry[];
   supervisors: string[];
   transporters: string[];
   loadLocations: string[];
@@ -30,6 +31,7 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
   onClearInitialGateId,
   loadEntries,
   securityLogs,
+  allSecurityLogs,
   supervisors,
   transporters,
   loadLocations,
@@ -42,7 +44,25 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
   onNavigateToQueue
 }) => {
   const [selectedGateId, setSelectedGateId] = useState(initialGateId || '');
-  
+
+  // Comprehensive security log pool to prevent missing logs across different date selections
+  const lookupLogs = useMemo(() => {
+    return allSecurityLogs && allSecurityLogs.length > 0 ? allSecurityLogs : securityLogs;
+  }, [allSecurityLogs, securityLogs]);
+
+  // Determine initial opType strictly from initialGateId if provided
+  const initialOpType = React.useMemo(() => {
+    if (!initialGateId) return 'LOADING';
+    const gate = lookupLogs.find((s) => s.id === initialGateId);
+    if (gate) {
+      const rawPurpose = String(gate.purpose || (gate as any).activity_type || '').trim().toUpperCase();
+      return rawPurpose.includes('UNLOAD') ? 'UNLOADING' : 'LOADING';
+    }
+    return 'LOADING';
+  }, [initialGateId, lookupLogs]);
+
+  const [opType, setOpType] = useState<'LOADING' | 'UNLOADING'>(() => initialOpType);
+
   React.useEffect(() => {
     if (initialGateId) {
       handleGateSelect(initialGateId, initialDest);
@@ -50,9 +70,7 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
         onClearInitialGateId();
       }
     }
-  }, [initialGateId, initialDest]);
-
-  const [opType, setOpType] = useState<'LOADING' | 'UNLOADING'>('LOADING');
+  }, [initialGateId, initialDest, lookupLogs]);
   const activeDashboardDate = selectedDate || globalFilterValue || new Date().toISOString().split('T')[0];
   const [entryDate, setEntryDate] = useState<string>(() => activeDashboardDate);
 
@@ -185,59 +203,60 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
       return;
     }
 
-    const gate = securityLogs.find((s) => s.id === gateId);
+    const gate = lookupLogs.find((s) => s.id === gateId);
     if (!gate) return;
 
     setVehicleNo(gate.vehicle);
     setIsVehicleLocked(true);
-    if (gate.transporter && transporters.includes(gate.transporter)) {
+    if (gate.transporter) {
       setTransporter(gate.transporter);
     }
+    if (gate.vType) {
+      setVType(gate.vType);
+    }
+    if (gate.entryDate) {
+      setEntryDate(gate.entryDate);
+    }
+    if ((gate as any).totalCases) {
+      setTotalCases(Number((gate as any).totalCases) || '');
+    }
+    if ((gate as any).sealNo || (gate as any).sealNumber) {
+      setSealNumber((gate as any).sealNo || (gate as any).sealNumber);
+    }
 
-    // Authoritative cross-portal mapping: resolve gate activity for AIL & AHPL
-    const targetDivision = specificDest?.unit || gate.unit || 'AIL';
-    const resolved = resolveSupervisorOpType({
-      purpose: gate.purpose,
-      unit: targetDivision
-    });
+    // Exact purpose mapping directly from gate entry - NO hardcoded fallback
+    const rawPurpose = String(gate.purpose || (gate as any).activity_type || '').trim().toUpperCase();
+    const isUnload = rawPurpose.includes('UNLOAD');
+    const exactOpType: 'LOADING' | 'UNLOADING' = isUnload ? 'UNLOADING' : 'LOADING';
 
-    // Set authoritative activity type (Strictly UNLOADING if guard chose Unloading, whether AIL or AHPL)
-    setOpType(resolved.opType);
+    // Strictly set the operation activity to the exact gate purpose
+    setOpType(exactOpType);
 
-    if (resolved.opType === 'LOADING') {
-      setFromLoc('INDORE HUB');
-      
-      if (specificDest) {
-        if (specificDest.unit) handleUnitChange(specificDest.unit);
-        setToLoc(specificDest.location);
-      } else {
-        if (gate.unit && gate.unit !== 'BOTH' && gate.unit !== 'SHUTTLE') {
-          handleUnitChange(gate.unit);
-        }
-        if (gate.routeType === 'Milk Route' && gate.milkRouteDestinations && gate.milkRouteDestinations.length > 0) {
-          const combinedDest = gate.milkRouteDestinations.map(m => m.unit ? `${m.location} (${m.unit})` : m.location).join(' / ');
-          setToLoc(combinedDest);
-        } else {
-          setToLoc(gate.toLoc || '');
-        }
-      }
-    } else {
-      // Strictly UNLOADING for both AIL and AHPL
+    // Division & Dock assignment
+    const targetDivision = specificDest?.unit || gate.unit || (Number(gate.grNo) >= 691 ? 'AHPL' : 'AIL');
+    if (targetDivision && targetDivision !== 'BOTH' && targetDivision !== 'SHUTTLE') {
+      handleUnitChange(targetDivision);
+    } else if (targetDivision) {
+      setUnit(targetDivision);
+    }
+
+    if (exactOpType === 'UNLOADING') {
       setToLoc('INDORE HUB');
-      
       if (specificDest) {
-        if (specificDest.unit) handleUnitChange(specificDest.unit);
         setFromLoc(specificDest.location);
       } else {
-        if (gate.unit && gate.unit !== 'BOTH' && gate.unit !== 'SHUTTLE') {
-          handleUnitChange(gate.unit);
-        }
-        if (gate.routeType === 'Milk Route' && gate.milkRouteDestinations && gate.milkRouteDestinations.length > 0) {
-          const combinedDest = gate.milkRouteDestinations.map(m => m.unit ? `${m.location} (${m.unit})` : m.location).join(' / ');
-          setFromLoc(combinedDest);
-        } else {
-          setFromLoc(gate.fromLoc || 'VENDOR / SUPPLIER ORIGIN');
-        }
+        const origin = gate.fromLoc || (gate as any).origin || (gate as any).source || (gate as any).target_location || (gate as any).warehouse_name || 'VENDOR / SUPPLIER ORIGIN';
+        setFromLoc(origin);
+      }
+    } else {
+      setFromLoc('INDORE HUB');
+      if (specificDest) {
+        setToLoc(specificDest.location);
+      } else if (gate.routeType === 'Milk Route' && gate.milkRouteDestinations && gate.milkRouteDestinations.length > 0) {
+        const combinedDest = gate.milkRouteDestinations.map(m => m.unit ? `${m.location} (${m.unit})` : m.location).join(' / ');
+        setToLoc(combinedDest);
+      } else {
+        setToLoc(gate.toLoc || (gate as any).target_location || '');
       }
     }
 
@@ -330,7 +349,11 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
   const usedGateIds = useMemo(() => new Set(loadEntries.map((l) => l.gateId).filter(Boolean)), [loadEntries]);
 
   const pendingGateLogs = useMemo(() => {
-    return securityLogs.filter((veh) => {
+    return lookupLogs.filter((veh) => {
+      // If currently selected or passed as initial, always preserve so selection is never lost
+      if (selectedGateId && veh.id === selectedGateId) return true;
+      if (initialGateId && veh.id === initialGateId) return true;
+
       if (veh.purpose === 'Parking / Transit') return false;
 
       // Strict Current-Date Filter: Vehicle must have arrived on the active date
@@ -391,14 +414,14 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
 
       return true;
     });
-  }, [securityLogs, targetFilterDate, globalFilterEndDate, globalFilterType, usedGateIds, loadEntries]);
+  }, [lookupLogs, targetFilterDate, globalFilterEndDate, globalFilterType, usedGateIds, loadEntries, selectedGateId, initialGateId]);
 
-  // Clean up selectedGateId if it is no longer valid in current pendingGateLogs
+  // Clean up selectedGateId only if it is no longer valid in lookupLogs
   React.useEffect(() => {
-    if (selectedGateId && !selectedGateId.startsWith('SHUTTLE_') && !pendingGateLogs.some((p) => p.id === selectedGateId)) {
+    if (selectedGateId && !selectedGateId.startsWith('SHUTTLE_') && !lookupLogs.some((p) => p.id === selectedGateId)) {
       setSelectedGateId('');
     }
-  }, [pendingGateLogs, selectedGateId]);
+  }, [lookupLogs, selectedGateId]);
 
   return (
     <div id="loading-operations-wrapper" className="w-full max-w-7xl mx-auto px-4 py-4 space-y-4">
@@ -564,11 +587,11 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
               </label>
               {opType === 'UNLOADING' ? (
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                  UNLOADING (Auto-Default from Gate)
+                  UNLOADING
                 </span>
               ) : (
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                  LOADING (Auto-Default from Gate)
+                  LOADING
                 </span>
               )}
             </div>

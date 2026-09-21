@@ -310,8 +310,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     const getLoadingCasesFromRawDb = (dateStr: string) => {
       let totalCases = 0;
       (loadEntries || []).forEach(l => {
-        const isAil = (l.unit || '').toUpperCase().includes('AIL');
-        const op = isAil ? 'LOADING' : l.opType;
+        const op = (l.opType || '').toUpperCase();
         const isCompleted = l.status === 'LOADED' || l.status === 'COMPLETED' || l.status === 'DISPATCHED' || (l.startTime && l.endTime) || op === 'LOADING';
         if (isCompleted && op !== 'UNLOADING') {
           const rawDate = l.entryDate || (l as any).date || (l as any).dateTime || (l as any).updatedAt || (l as any).createdAt || l.startTime;

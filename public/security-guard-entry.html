@@ -735,7 +735,8 @@
     // 2. Waiting Queue UI Render Logic (Waiting for Loading/Unloading Card View)
     function renderWaitingQueueCard(vehicleData) {
       // Guard ne jo purpose select kiya hai, vahi badge/status me show hoga (Na ki hardcoded Loading)
-      const currentPurpose = vehicleData.purpose ? vehicleData.purpose.toUpperCase() : "LOADING";
+      const rawPurpose = String(vehicleData.purpose || '').toUpperCase();
+      const currentPurpose = rawPurpose.includes('UNLOAD') ? "UNLOADING" : "LOADING";
       
       // Location name ko dynamic banana taki sirf "Warehouse" na aakar exact location aaye
       const exactLocation = vehicleData.target_location ? vehicleData.target_location : "Warehouse";

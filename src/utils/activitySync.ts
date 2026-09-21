@@ -203,8 +203,12 @@ export function resolveSupervisorOpType(gate: { purpose?: string; unit?: string;
   forcedOverride: boolean;
 } {
   const portal = gate.unit || 'AIL';
+  const p = (gate.purpose || '').toUpperCase();
+  const isUnload = p.includes('UNLOAD');
+  const targetActivity = isUnload ? 'UNLOADING' : 'LOADING';
+
   const syncResult = handleFormSubmission(portal, {
-    activity_type: gate.purpose || 'UNLOADING'
+    activity_type: targetActivity
   });
 
   if (syncResult.success && syncResult.syncedData) {
@@ -216,8 +220,6 @@ export function resolveSupervisorOpType(gate: { purpose?: string; unit?: string;
     };
   }
 
-  const p = (gate.purpose || '').toUpperCase();
-  const isUnload = p.includes('UNLOAD');
   return {
     opType: isUnload ? 'UNLOADING' : 'LOADING',
     requiresUnloading: isUnload,
