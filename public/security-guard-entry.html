@@ -646,11 +646,83 @@
 
     companySelect.addEventListener('change', updateAutoGr);
 
+    // 1. फॉर्म डेटा मैपिंग फंक्शन (AIL & AHPL Form Mapping & Validation Script)
+    function mapGuardToSupervisorActivity(guardInputData) {
+      const rawActivity = guardInputData.activity_type || guardInputData.purpose || '';
+      const selectedActivity = rawActivity ? rawActivity.trim().toUpperCase() : '';
+      const normalized = selectedActivity.includes('UNLOAD') ? 'UNLOADING' : selectedActivity.includes('LOAD') ? 'LOADING' : selectedActivity;
+      
+      if (normalized !== 'LOADING' && normalized !== 'UNLOADING') {
+        return {
+          status: 'ERROR',
+          message: 'अमान्य गतिविधि (Invalid Activity Type). कृपया Loading या Unloading चुनें।'
+        };
+      }
+
+      let supervisorFormMapping = {
+        activity_type: normalized,
+        requires_unloading_fields: (normalized === 'UNLOADING'),
+        requires_loading_fields: (normalized === 'LOADING'),
+        timestamp: new Date().toISOString()
+      };
+
+      return {
+        status: 'SUCCESS',
+        data: supervisorFormMapping
+      };
+    }
+
+    // 2. AIL और AHPL डेटा सिंक हैंडलर (Cross-Portal Validation Fix)
+    function handleFormSubmission(portalType, payload) {
+      console.log(`Processing form for: ${portalType}`);
+      const mappedResult = mapGuardToSupervisorActivity(payload);
+      if (mappedResult.status === 'ERROR') {
+        console.error(mappedResult.message);
+        return { success: false, error: mappedResult.message };
+      }
+      let finalSyncedData = mappedResult.data;
+      if (portalType === 'AIL' || (portalType && portalType.toUpperCase().includes('AIL'))) {
+        finalSyncedData.forced_override = true;
+      }
+      return {
+        success: true,
+        message: `${portalType} फॉर्म सफलतापूर्वक सिंक हो गया है।`,
+        syncedData: finalSyncedData
+      };
+    }
+
+    // 3. गार्ड द्वारा चुनी गई एक्टिविटी को सुपरवाइजर फॉर्म में ऑटो-मैप करने का लॉजिक
+    function syncGuardToSupervisorActivity(guardSelectedActivity) {
+      const activity = guardSelectedActivity ? guardSelectedActivity.trim().toUpperCase() : "";
+      const supervisorActivityField = document.getElementById('supervisor_activity_type');
+      if (supervisorActivityField) {
+        supervisorActivityField.value = activity;
+        if (activity === "UNLOADING") {
+          if (typeof showUnloadingSectionForSupervisor === 'function') showUnloadingSectionForSupervisor();
+        } else if (activity === "LOADING") {
+          if (typeof showLoadingSectionForSupervisor === 'function') showLoadingSectionForSupervisor();
+        }
+      }
+    }
+
+    // 4. लोकेशन मास्टर से केवल वैध (Valid) लोडिंग/अनलोडिंग लोकेशन पिक्स करने का लॉजिक (डमी हटाने के लिए)
+    function filterValidLocations(locationMasterList, selectedActivity) {
+      if (!Array.isArray(locationMasterList)) return [];
+      return locationMasterList.filter(loc => {
+        const locName = typeof loc === 'string' ? loc.toLowerCase() : (loc.location_name ? loc.location_name.toLowerCase() : "");
+        const isDummy = locName.includes('dummy') || locName.includes('test') || locName.includes('temp');
+        const isActive = typeof loc === 'string' ? true : (loc.status === 'ACTIVE' || loc.is_active === true);
+        const allowed = typeof loc === 'string' ? null : (loc.allowed_activity || loc.activity || null);
+        const activityMatch = allowed ? allowed.toUpperCase() === selectedActivity.toUpperCase() : true;
+        return !isDummy && isActive && activityMatch;
+      });
+    }
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const purpose = purposeSelect.value;
       const isUnloading = purpose === 'Unloading';
-      const co = isUnloading ? companySelect.value : '-';
+      const co = isUnloading ? companySelect.value : (companySelect.value || 'AIL');
       const cnt = isUnloading ? getNextCounter(companySelect.value) : '';
       const vehicle = vehicleNoInput.value.trim().toUpperCase();
       const mobile = driverMobileInput.value.trim();
@@ -660,9 +732,22 @@
         return;
       }
 
+      // Execute cross-portal mapping and validation
+      const syncResult = handleFormSubmission(co, {
+        activity_type: purpose,
+        vehicle_no: vehicle
+      });
+
+      if (!syncResult.success) {
+        alert(syncResult.error || 'Validation error');
+        return;
+      }
+
+      const authoritativePurpose = syncResult.syncedData.activity_type === 'UNLOADING' ? 'Unloading' : 'Loading';
+
       const newEntry = {
         id: 'LOG_' + Date.now(),
-        purpose: purpose,
+        purpose: authoritativePurpose,
         company: co,
         grNo: cnt,
         vehicleNo: vehicle,

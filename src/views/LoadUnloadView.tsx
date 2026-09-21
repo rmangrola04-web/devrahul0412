@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { LoadUnloadEntry, SecurityGateEntry } from '../types';
 import { DOCK_CONFIG } from '../data/defaultData';
 import { matchesWmsDateFilter, getGateRecordDate } from '../utils/wmsDataEngine';
+import { handleFormSubmission, resolveSupervisorOpType, filterValidLocations, syncGuardToSupervisorActivity } from '../utils/activitySync';
 
 interface LoadUnloadViewProps {
   initialGateId?: string | null;
@@ -78,6 +79,33 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
   const [totalCases, setTotalCases] = useState<number | ''>('');
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [savedDetails, setSavedDetails] = useState<{ vehicle: string; bay: string; opType: string } | null>(null);
+
+  // Pure logic: Filter out dummy/test/temp locations from location master list
+  const validLoadLocations = useMemo(() => {
+    return filterValidLocations(loadLocations, 'LOADING') as string[];
+  }, [loadLocations]);
+
+  const validUnloadLocations = useMemo(() => {
+    return filterValidLocations(unloadLocations, 'UNLOADING') as string[];
+  }, [unloadLocations]);
+
+  // Expose helper triggers so external guard sync or DOM scripts can auto-switch sections
+  React.useEffect(() => {
+    (window as any).showUnloadingSectionForSupervisor = () => {
+      setOpType('UNLOADING');
+      setFromLoc('');
+      setToLoc('INDORE HUB');
+    };
+    (window as any).showLoadingSectionForSupervisor = () => {
+      setOpType('LOADING');
+      setFromLoc('INDORE HUB');
+      setToLoc('');
+    };
+    return () => {
+      delete (window as any).showUnloadingSectionForSupervisor;
+      delete (window as any).showLoadingSectionForSupervisor;
+    };
+  }, []);
 
   const occupiedDocks = React.useMemo(() => {
     const map = new Map<string, string>();
@@ -166,8 +194,17 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
       setTransporter(gate.transporter);
     }
 
-    if (gate.purpose === 'Loading') {
-      setOpType('LOADING');
+    // Authoritative cross-portal mapping: resolve gate activity for AIL & AHPL
+    const targetDivision = specificDest?.unit || gate.unit || 'AIL';
+    const resolved = resolveSupervisorOpType({
+      purpose: gate.purpose,
+      unit: targetDivision
+    });
+
+    // Set authoritative activity type (Strictly UNLOADING if guard chose Unloading, whether AIL or AHPL)
+    setOpType(resolved.opType);
+
+    if (resolved.opType === 'LOADING') {
       setFromLoc('INDORE HUB');
       
       if (specificDest) {
@@ -185,7 +222,7 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
         }
       }
     } else {
-      setOpType('UNLOADING');
+      // Strictly UNLOADING for both AIL and AHPL
       setToLoc('INDORE HUB');
       
       if (specificDest) {
@@ -199,7 +236,7 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
           const combinedDest = gate.milkRouteDestinations.map(m => m.unit ? `${m.location} (${m.unit})` : m.location).join(' / ');
           setFromLoc(combinedDest);
         } else {
-          setFromLoc(gate.fromLoc || '');
+          setFromLoc(gate.fromLoc || 'VENDOR / SUPPLIER ORIGIN');
         }
       }
     }
@@ -520,11 +557,24 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
           </div>
 
           {/* Operation Activity Switcher */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Operation Activity *
-            </label>
+          <div id={opType === 'UNLOADING' ? 'unloading_supervisor_section_header' : 'loading_supervisor_section_header'}>
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="supervisor_activity_type" className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                Operation Activity (सुपरवाइजर ऑपरेशन) *
+              </label>
+              {opType === 'UNLOADING' ? (
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                  UNLOADING (Auto-Default from Gate)
+                </span>
+              ) : (
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                  LOADING (Auto-Default from Gate)
+                </span>
+              )}
+            </div>
             <select
+              id="supervisor_activity_type"
+              name="supervisor_activity_type"
               value={opType}
               onChange={(e) => {
                 const val = e.target.value as 'LOADING' | 'UNLOADING';
@@ -537,10 +587,14 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
                   setToLoc('INDORE HUB');
                 }
               }}
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-black text-blue-600 dark:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className={`w-full border rounded-xl p-2.5 text-xs font-black focus:outline-none focus:ring-2 ${
+                opType === 'UNLOADING'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 focus:ring-emerald-500/40'
+                  : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 focus:ring-amber-500/40'
+              }`}
             >
-              <option value="LOADING">⬆ START LOADING (Status: LOADING IN-PROGRESS)</option>
               <option value="UNLOADING">⬇ START UNLOADING (Status: UNLOADING IN-PROGRESS)</option>
+              <option value="LOADING">⬆ START LOADING (Status: LOADING IN-PROGRESS)</option>
             </select>
           </div>
 
@@ -608,26 +662,35 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
                 onChange={(e) => {
                   const u = e.target.value;
                   setUnit(u);
-                  if (u.includes('AIL')) {
-                    setOpType('LOADING');
-                    setFromLoc('INDORE HUB');
-                    setToLoc('');
+                  const available = DOCK_CONFIG[u] || DOCK_CONFIG['AHPL'] || DOCK_CONFIG['AIL'];
+                  if (available && available.length > 0 && !available.includes(bayNo)) {
+                    setBayNo(available[0]);
                   }
                 }}
                 className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               >
-                <option value="AHPL">AHPL</option>
-                <option value="AIL">AIL (Strictly Loading Only)</option>
+                <option value="AHPL">AHPL (Abbott Healthcare)</option>
+                <option value="AIL">AIL (Abbott India Limited)</option>
               </select>
             </div>
           </div>
 
-          {/* Origin & Destination */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800">
+          {/* Origin & Destination (Filtered for Valid Active Non-Dummy Locations) */}
+          <div 
+            id={opType === 'UNLOADING' ? 'supervisor_unloading_section' : 'supervisor_loading_section'}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800"
+          >
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                From Location *
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  From Location (Origin) *
+                </label>
+                {opType === 'UNLOADING' && (
+                  <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                    {validUnloadLocations.length} Valid Origins
+                  </span>
+                )}
+              </div>
               <select
                 value={fromLoc}
                 onChange={(e) => setFromLoc(e.target.value)}
@@ -635,7 +698,10 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
                 className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl p-2 text-xs font-bold text-slate-800 dark:text-slate-100 disabled:opacity-60"
               >
                 <option value="">-- Choose Origin --</option>
-                {unloadLocations.map((loc) => (
+                {fromLoc && !validUnloadLocations.includes(fromLoc) && fromLoc !== 'INDORE HUB' && (
+                  <option value={fromLoc}>📍 {fromLoc} (From Gate Record)</option>
+                )}
+                {validUnloadLocations.map((loc) => (
                   <option key={loc} value={loc}>
                     📍 {loc}
                   </option>
@@ -643,9 +709,16 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                To Location *
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  To Location (Destination) *
+                </label>
+                {opType === 'LOADING' && (
+                  <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400">
+                    {validLoadLocations.length} Valid Dests
+                  </span>
+                )}
+              </div>
               <select
                 value={toLoc}
                 onChange={(e) => setToLoc(e.target.value)}
@@ -653,7 +726,10 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
                 className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl p-2 text-xs font-bold text-slate-800 dark:text-slate-100 disabled:opacity-60"
               >
                 <option value="">-- Choose Destination --</option>
-                {loadLocations.map((loc) => (
+                {toLoc && !validLoadLocations.includes(toLoc) && toLoc !== 'INDORE HUB' && (
+                  <option value={toLoc}>🏁 {toLoc} (From Gate Record)</option>
+                )}
+                {validLoadLocations.map((loc) => (
                   <option key={loc} value={loc}>
                     🏁 {loc}
                   </option>

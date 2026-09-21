@@ -3,6 +3,7 @@ import { Truck, ShieldCheck, CheckCircle, Pencil, Trash2, Sparkles, Hash, Clock,
 import { SecurityGateEntry, LoadUnloadEntry, ShuttleStep, PlanEntry } from '../types';
 import { DOCK_CONFIG } from '../data/defaultData';
 import { matchesWmsDateFilter } from '../utils/wmsDataEngine';
+import { handleFormSubmission, filterValidLocations } from '../utils/activitySync';
 
 interface GateSecurityViewProps {
   activeOperations: LoadUnloadEntry[];
@@ -183,14 +184,17 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
     // 2. UNLOADING LOCATION SOURCE (STRICT COLUMN B):
     // For all Unloading operations, the location dropdown/picker must strictly fetch and populate locations exclusively from Column B of the Location Master (unloadLocations). Under no circumstances should unloading pull from loading sources.
     if (purpose === 'Unloading') {
-      return unloadLocations && unloadLocations.length > 0 ? unloadLocations : [];
+      const validUnloads = filterValidLocations(unloadLocations || [], 'UNLOADING') as string[];
+      return validUnloads.length > 0 ? validUnloads : [];
     }
+
+    const validLoads = filterValidLocations(loadLocations || [], 'LOADING') as string[];
 
     // 1. LOADING LOCATION SOURCE (CONDITIONAL):
     // For specific courier/mode entries (such as Spark Time / Rail, SD Cargo / Air, or Star Line / Air), respect their designated routing and loading master configurations.
     const isSpecialCourierOrMode = isRailAirOrCourier || isCourierOrSpecialTransporter;
     if (isSpecialCourierOrMode) {
-      return loadLocations && loadLocations.length > 0 ? loadLocations : ['CFC', 'MUMBAI', 'DELHI', 'BANGALORE', 'CHENNAI', 'KOLKATA', 'HYDERABAD', 'PUNE', 'AHMEDABAD', 'JAIPUR', 'LUCKNOW'];
+      return validLoads.length > 0 ? validLoads : ['CFC', 'MUMBAI', 'DELHI', 'BANGALORE', 'CHENNAI', 'KOLKATA', 'HYDERABAD', 'PUNE', 'AHMEDABAD', 'JAIPUR', 'LUCKNOW'];
     }
 
     // For standard loading tasks: locations must be picked directly from Consolidated Loading Plans (Pending Plans Only).
@@ -218,17 +222,17 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
       });
     }
     const plannedLocs = Array.from(new Set(matchedPlans.map(p => p.destination).filter(Boolean))).sort();
-    if (plannedLocs.length > 0) return plannedLocs;
+    if (plannedLocs.length > 0) return filterValidLocations(plannedLocs, 'LOADING') as string[];
 
     const divisionPlans = activePlans.filter(p => loadDivision === 'BOTH' || (p.unit || '').toUpperCase() === loadDivision.toUpperCase());
     const divLocs = Array.from(new Set(divisionPlans.map(p => p.destination).filter(Boolean))).sort();
-    if (divLocs.length > 0) return divLocs;
+    if (divLocs.length > 0) return filterValidLocations(divLocs, 'LOADING') as string[];
 
     const allPlanned = Array.from(new Set(activePlans.map(p => p.destination).filter(Boolean))).sort();
-    if (allPlanned.length > 0) return allPlanned;
+    if (allPlanned.length > 0) return filterValidLocations(allPlanned, 'LOADING') as string[];
 
     // Fallback to designated loadLocations master
-    return loadLocations && loadLocations.length > 0 ? loadLocations : [];
+    return validLoads.length > 0 ? validLoads : [];
   }, [purpose, planEntries, loadDivision, transporter, vType, transporters, unloadLocations, loadLocations, isRailAirOrCourier, isCourierOrSpecialTransporter]);
 
   const [destination, setDestination] = useState(availableLocations[0] || 'JAIPUR');
@@ -297,6 +301,19 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
     }
 
     const cleanVehicle = vehicleNo.replace(/\s+/g, '').toUpperCase();
+
+    // Cross-Portal Validation & Mapping Fix (AIL & AHPL Activity Sync)
+    const syncResult = handleFormSubmission(loadDivision, {
+      activity_type: purpose,
+      vehicle_no: cleanVehicle
+    });
+
+    if (!syncResult.success) {
+      alert(syncResult.message || "अमान्य गतिविधि। कृपया Loading या Unloading चुनें।");
+      return;
+    }
+
+    const authoritativePurpose: 'Loading' | 'Unloading' = syncResult.syncedData?.activity_type === 'UNLOADING' ? 'Unloading' : 'Loading';
     
     // Auto-assigned Dedicated Dock logic removed
     let autoAssignedDock = 'Unassigned';
@@ -310,13 +327,13 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
     
     const newLog: SecurityGateEntry = {
       id: `GATE-${Date.now()}`,
-      purpose: purpose,
+      purpose: authoritativePurpose,
       vehicle: cleanVehicle,
       vType: vType,
       mobile: 'N/A',
       transporter: transporter || 'N/A',
-      fromLoc: purpose === 'Unloading' ? combinedDestination : 'WAREHOUSE',
-      toLoc: purpose === 'Loading' ? combinedDestination : 'WAREHOUSE',
+      fromLoc: authoritativePurpose === 'Unloading' ? combinedDestination : 'WAREHOUSE',
+      toLoc: authoritativePurpose === 'Loading' ? combinedDestination : 'WAREHOUSE',
       dateTime: dateTime || getCurrentFormattedDateTime(),
       entryDate: entryDate || getCurrentDate(),
       remarks: supervisorNameRemarks,
@@ -341,7 +358,7 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
     setDateTime(getCurrentFormattedDateTime());
     setMilkRouteDestinations([]);
     setSelectedMultiDestinations([]);
-    setSuccessToast(`Entry Saved: [${purpose}] | Vehicle: ${cleanVehicle}`);
+    setSuccessToast(`Entry Saved: [${authoritativePurpose}] | Vehicle: ${cleanVehicle}`);
     setTimeout(() => setSuccessToast(null), 3000);
   };
 
