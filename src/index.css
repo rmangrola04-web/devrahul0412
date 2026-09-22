@@ -55,6 +55,101 @@
   --shadow-card-hover: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 28px rgba(244, 63, 94, 0.3);
 }
 
+/* ==========================================================================
+   चारकोल थीम में कार्ड्स और बॉर्डर्स के लिए नियोन कॉन्ट्रास्ट
+   ========================================================================== */
+[data-theme="charcoal"] {
+  --bg-main: #0B0F19;
+  --bg-sidebar: #111827;
+  --bg-header: rgba(17, 24, 39, 0.96);
+  --bg-card: #111827;
+  --bg-elevated: #1F2937;
+  --bg-input: #111827;
+  --bg-input-focus: #1F2937;
+
+  --text-main: #FFFFFF;
+  --text-muted: #94A3B8;
+  --text-sidebar: #FFFFFF;
+  --text-header: #FFFFFF;
+  --text-heading: #FFFFFF;
+  --text-label: #E2E8F0;
+
+  --border-subtle: rgba(0, 240, 255, 0.35);
+  --border-card: #00F0FF;
+  --border-sidebar: rgba(0, 240, 255, 0.25);
+  --border-header: rgba(0, 240, 255, 0.3);
+  --border-input: #00F0FF;
+  --border-focus: #00F0FF;
+
+  --shadow-card: 0 0 10px rgba(0, 240, 255, 0.2);
+  --shadow-card-hover: 0 0 18px rgba(0, 240, 255, 0.35);
+}
+
+/* 1. चारकोल थीम में कार्ड्स और बॉर्डर्स के लिए नियोन कॉन्ट्रास्ट */
+.card, .widget, .panel {
+    background-color: #111827 !important; /* गहरा चारकोल बैकग्राउंड */
+    border: 1.5px solid #00F0FF !important; /* नियोन ब्लू/सियन बॉर्डर हाइलाइटर */
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2); /* नियोन ग्लो इफ़ेक्ट */
+    border-radius: 8px;
+}
+
+[data-theme="charcoal"] .card, 
+[data-theme="charcoal"] .widget, 
+[data-theme="charcoal"] .panel,
+[data-theme="charcoal"] .widget-card,
+[data-theme="charcoal"] div.widget-card,
+[data-theme="charcoal"] [class*="bg-slate-900"],
+[data-theme="charcoal"] [class*="dark:bg-[#242c3d]"] {
+    background-color: #111827 !important; /* गहरा चारकोल बैकग्राउंड */
+    border: 1.5px solid #00F0FF !important; /* नियोन ब्लू/सियन बॉर्डर हाइलाइटर */
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2) !important; /* नियोन ग्लो इफ़ेक्ट */
+    border-radius: 8px !important;
+}
+
+/* 2. सभी फोंट को ब्राइट और साफ़ सफेद करना */
+body, .card p, .card span, .card label, .card h4 {
+    color: #FFFFFF !important; /* टेक्स्ट पूरी तरह सफेद */
+    font-weight: 600 !important;
+}
+
+[data-theme="charcoal"] body,
+[data-theme="charcoal"] .card p, 
+[data-theme="charcoal"] .card span, 
+[data-theme="charcoal"] .card label, 
+[data-theme="charcoal"] .card h4,
+[data-theme="charcoal"] .widget p,
+[data-theme="charcoal"] .widget span,
+[data-theme="charcoal"] .widget label,
+[data-theme="charcoal"] .widget h4,
+[data-theme="charcoal"] .panel p,
+[data-theme="charcoal"] .panel span,
+[data-theme="charcoal"] .panel label,
+[data-theme="charcoal"] .panel h4,
+[data-theme="charcoal"] .widget-card p,
+[data-theme="charcoal"] .widget-card span:not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-blue"]):not([class*="text-cyan"]),
+[data-theme="charcoal"] .widget-card label,
+[data-theme="charcoal"] .widget-card h1,
+[data-theme="charcoal"] .widget-card h2,
+[data-theme="charcoal"] .widget-card h3,
+[data-theme="charcoal"] .widget-card h4 {
+    color: #FFFFFF !important; /* टेक्स्ट पूरी तरह सफेद */
+    font-weight: 600 !important;
+}
+
+/* 3. छोटे लेबल्स/शॉर्ट फॉर्म्स के लिए विजिबिलिटी */
+.short-label {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: #00F0FF !important; /* नियोन टच */
+}
+
+[data-theme="charcoal"] .short-label,
+[data-theme="charcoal"] span.short-label {
+    font-size: 12px !important;
+    letter-spacing: 0.5px !important;
+    color: #00F0FF !important; /* नियोन टच */
+}
+
 /* AMOLED Pitch Black & Pastel Theme */
 [data-theme="amoled"] {
   --bg-main: #000000;
@@ -670,66 +765,39 @@ table tbody tr:hover {
   }
 }
 
-/* 1. पूरे पेज का बैकग्राउंड लाइट स्काई ब्लू करें */
-body, .dashboard-container {
-    background-color: #E0F2FE !important; /* लाइट स्काई ब्लू शेड */
-    color: #000000 !important; /* सभी मुख्य फोंट ब्लैक */
+/* 1. मुख्य बैकग्राउंड (अल्ट्रा डार्क) */
+body, .app-container {
+    background-color: #0A0F16 !important; /* Deep Charcoal Black */
+    color: #FFFFFF !important; /* सभी टेक्स्ट डिफ़ॉल्ट सफ़ेद */
 }
 
-/* 2. कार्ड्स के लिए स्टाइल (प्रॉपर हाइलाइट और बॉर्डर) */
-.card, .widget-box, .panel, .widget-card {
-    background-color: #FFFFFF !important; /* कार्ड का बैकग्राउंड साफ़ सफ़ेद */
-    border: 2px solid #38BDF8 !important; /* स्काई ब्लू हाइलाइटर बॉर्डर */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important; /* हल्का शैडो ताकि कार्ड उभर कर दिखे */
-    border-radius: 10px !important;
+/* 2. कार्ड्स (मैट ब्लैक और हाई कंट्रास्ट बॉर्डर) */
+.card, .widget-panel, .widget-card {
+    background-color: #1A202C !important; /* Matte Black Card Background */
+    border: 1px solid #38BDF8 !important; /* Bright Neon Blue Highlighter Border */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
-/* 3. कार्ड्स के अंदर के टेक्स्ट और लेबल्स को ब्लैक करना */
-.card h1, .card h2, .card h3, .card h4, .card p, .card span, .card label,
-.widget-card h1, .widget-card h2, .widget-card h3, .widget-card h4, .widget-card p, .widget-card span, .widget-card label {
-    color: #000000 !important;
-    font-weight: 650 !important; /* फोंट को थोड़ा बोल्ड करें ताकि साफ दिखे */
-}
-
-/* 4. साइडबार या नेविगेशन मेन्यू (अगर इसे अलग रखना है) */
-.sidebar {
-    background-color: #4A1525 !important; /* आपकी मौजूदा डार्क थीम बरकरार रखने के लिए */
-    color: #FFFFFF !important;
-}
-
-/* 1. सभी डार्क/कलर्ड बैज और स्मॉल बटन के अंदर का टेक्स्ट सफेद (White) और चमकीला करें */
-.badge, .btn, .status-pill, 
-span[class*="bg-"], div[class*="bg-"], 
-button, .tag {
-    color: #FFFFFF !important; /* टेक्स्ट पूरी तरह सफेद ताकि डार्क बैकग्राउंड पर चमके */
-    font-weight: 700 !important; /* फॉन्ट को बोल्ड करें */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* हल्की शैडो ताकि और उभर कर दिखे */
-}
-
-/* 2. विशिष्ट कलर्ड बटन्स/स्टेटस बॉक्स के लिए फॉन्ट कलर फिक्स */
-/* ग्रीन बटन / बैज */
-.bg-green, .badge-success, .done-badge {
-    background-color: #059669 !important; /* थोड़ा ब्राइट ग्रीन */
-    color: #FFFFFF !important;
-}
-
-/* ब्राउन/ऑरेंज/डार्क बैज */
-.bg-amber, .bg-brown, .badge-warning, .active-badge {
-    background-color: #D97706 !important; /* प्रॉपर विजिबल ऑरेंज-براउन */
-    color: #FFFFFF !important;
-}
-
-/* ब्लू बैज */
-.bg-blue, .badge-info, .total-badge {
-    background-color: #2563EB !important; /* ब्राइट ब्लू */
-    color: #FFFFFF !important;
-}
-
-/* 3. कार्ड्स के अंदर के सामान्य लेबल्स और टेक्स्ट को डार्क ब्लैक रखें (जो साफ़ बैकग्राउंड पर हैं) */
-.card p, .card span:not([class*="bg"]), .card label, .card h4,
-.widget-card p, .widget-card span:not([class*="bg"]), .widget-card label, .widget-card h4 {
-    color: #111827 !important; /* डार्क ब्लैक/ग्रे ताकि लाइट बैकग्राउंड पर शार्प दिखे */
+/* 3. कार्ड के भीतर के टेक्स्ट और लेबल्स (पूरी तरह सफ़ेद और बोल्ड) */
+.card h3, .card p, .card span, .card label, .metric-value, .widget-card h3, .widget-card h4, .widget-card p, .widget-card span, .widget-card label {
+    color: #FFFFFF !important; /* Pure White Font */
     font-weight: 600 !important;
+}
+
+/* 4. स्टेटस/हाइलाइटर के रंग (ब्राइट और अलग) */
+.status-blue { color: #38BDF8 !important; } /* Bright Neon Blue */
+.status-green { color: #4ADE80 !important; } /*Bright Neon Green */
+
+/* 5. नेविगेशन/साइडबार को साफ़ रखना */
+.sidebar {
+    background-color: #111827 !important; /* डार्क नेविगेशन */
+    border-right: 1px solid #374151;
+}
+.nav-link { color: #D1D5DB; }
+.nav-link.active {
+    background-color: #374151 !important;
+    color: #FFFFFF !important;
 }
 
 

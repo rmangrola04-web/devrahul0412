@@ -580,93 +580,93 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
           
-          {/* Card 1: CONSOLIDATED LOADING VEHICLES CARD (Active Loading) */}
-          <div className="widget-card bg-amber-50/80 dark:bg-[#242c3d] rounded-2xl border border-amber-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-5 space-y-3.5 max-w-full overflow-hidden">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-amber-950 dark:text-amber-300 pb-3 border-b border-amber-200/80 dark:border-[#3e4859] min-w-0">
-              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                <div className="p-2 sm:p-2.5 rounded-xl bg-amber-500 text-white shadow-xs shrink-0">
+          {/* Card 1: CONSOLIDATED LOADING VEHICLES CARD */}
+          <div className="widget-card bg-amber-50/80 dark:bg-[#1e2530] rounded-2xl border border-amber-300 dark:border-blue-500 shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-4 space-y-3 max-w-full overflow-hidden">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 text-amber-950 dark:text-white pb-2.5 border-b border-amber-200/80 dark:border-slate-700 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="p-2 rounded-xl bg-amber-500 text-white shadow-xs shrink-0">
                   <UploadCloud className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm sm:text-base font-black uppercase tracking-wider text-amber-950 dark:text-amber-100 truncate">
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950 dark:text-white truncate">
                       Loading Vehicles
                     </h3>
-                    <span className="px-1.5 py-0.5 bg-amber-200/80 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 rounded-md text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider shrink-0">
+                    <span className="px-1.5 py-0.5 bg-amber-200/80 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 rounded-md text-[9px] font-black uppercase tracking-wider shrink-0">
                       AIL & AHPL
                     </span>
                   </div>
-                  <p className="text-[11px] sm:text-xs text-amber-800/90 dark:text-amber-400 font-medium mt-0.5 truncate">
+                  <p className="text-[10px] sm:text-xs text-amber-800/90 dark:text-slate-300 font-medium mt-0.5 truncate">
                     Consolidated Loading Operations
                   </p>
                 </div>
               </div>
 
-              <div className="w-full sm:w-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center text-left sm:text-right bg-amber-100/90 dark:bg-amber-950/80 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-amber-300/80 dark:border-amber-800/70 shrink-0 max-w-full">
-                <div className="text-xl sm:text-2xl font-black text-amber-950 dark:text-amber-100 leading-none font-mono">
-                  {totalLoadingVehicles} <span className="text-xs font-bold font-sans">Veh</span>
+              <div className="w-full sm:w-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center text-left sm:text-right bg-amber-100/90 dark:bg-[#252f3f] px-2.5 py-1.5 rounded-xl border border-amber-300 dark:border-slate-700 shrink-0 max-w-full">
+                <div className="text-base sm:text-lg font-black text-amber-950 dark:text-white leading-none font-mono">
+                  {totalLoadingVehicles} <span className="text-[10px] font-bold font-sans">Veh</span>
                 </div>
-                <div className="text-xs font-extrabold text-amber-800 dark:text-amber-300 sm:mt-1 whitespace-nowrap">
-                  {(totalLoadedCases || 0).toLocaleString()} Total Cases
+                <div className="text-[10px] font-extrabold text-amber-800 dark:text-amber-300 sm:mt-0.5 whitespace-nowrap">
+                  {(totalLoadedCases || 0).toLocaleString()} Total C
                 </div>
               </div>
             </div>
 
             {/* Total Active vs Completed Overall Row */}
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 text-xs">
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 sm:p-3 rounded-xl border border-amber-200/80 dark:border-slate-700/80 flex justify-between items-center min-w-0">
-                <span className="text-[11px] sm:text-xs font-extrabold uppercase text-amber-900/90 dark:text-slate-300 tracking-wider truncate">Active Loading</span>
-                <span className="font-mono font-black text-amber-600 dark:text-amber-400 text-base sm:text-lg shrink-0 ml-1">{activeLoadingVehicles}</span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-white/80 dark:bg-[#252f3f] p-2.5 rounded-xl border border-amber-200/80 dark:border-slate-700 flex justify-between items-center min-w-0">
+                <span className="text-[10px] font-extrabold uppercase text-amber-900/90 dark:text-slate-200 tracking-wider truncate">Active Loading</span>
+                <span className="font-mono font-black text-amber-600 dark:text-amber-400 text-sm sm:text-base shrink-0 ml-1">{activeLoadingVehicles}</span>
               </div>
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 sm:p-3 rounded-xl border border-amber-200/80 dark:border-slate-700/80 flex justify-between items-center min-w-0">
-                <span className="text-[11px] sm:text-xs font-extrabold uppercase text-emerald-900/90 dark:text-slate-300 tracking-wider truncate">Loaded / Done</span>
-                <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 text-base sm:text-lg shrink-0 ml-1">{completedLoadingVehicles}</span>
+              <div className="bg-white/80 dark:bg-[#252f3f] p-2.5 rounded-xl border border-amber-200/80 dark:border-slate-700 flex justify-between items-center min-w-0">
+                <span className="text-[10px] font-extrabold uppercase text-emerald-900/90 dark:text-slate-200 tracking-wider truncate">Loaded / Done</span>
+                <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm sm:text-base shrink-0 ml-1">{completedLoadingVehicles}</span>
               </div>
             </div>
 
             {/* Division Breakdown: AIL and AHPL inside Loading Card */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {/* AIL Division Box */}
-              <div className="bg-white/50 dark:bg-slate-800/40 p-2.5 sm:p-3 rounded-xl border border-amber-200/80 dark:border-slate-700/80 space-y-2 min-w-0">
-                <div className="flex justify-between items-center border-b border-amber-200/60 dark:border-slate-700/60 pb-1.5 min-w-0 gap-1">
-                  <span className="font-black uppercase text-xs text-amber-950 dark:text-amber-200 tracking-wider truncate">
-                    AIL Division
+              <div className="bg-white/50 dark:bg-[#252f3f]/80 p-2.5 rounded-xl border border-amber-200/80 dark:border-slate-700 space-y-1.5 min-w-0">
+                <div className="flex justify-between items-center border-b border-amber-200/60 dark:border-slate-700 pb-1 min-w-0 gap-1">
+                  <span className="font-black uppercase text-xs text-amber-950 dark:text-white tracking-wider truncate">
+                    AIL
                   </span>
                   <span className="text-xs font-black text-amber-900 dark:text-amber-300 font-mono shrink-0">
                     {ailLoadingCount} Veh
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs min-w-0 gap-1">
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold shrink-0">Cases:</span>
-                  <span className="font-mono font-black text-amber-950 dark:text-amber-100 text-xs sm:text-sm truncate">
+                  <span className="text-slate-600 dark:text-slate-300 font-semibold shrink-0">C:</span>
+                  <span className="font-mono font-black text-amber-950 dark:text-white text-xs truncate">
                     {(ailLoadedCases || 0).toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-[10px] sm:text-[11px] pt-1.5 border-t border-amber-200/50 dark:border-slate-700/60 font-semibold min-w-0 gap-1">
+                <div className="flex justify-between items-center text-[10px] pt-1 border-t border-amber-200/50 dark:border-slate-700 font-semibold min-w-0 gap-1">
                   <span className="text-amber-800 dark:text-amber-400 truncate">Active: {ailActiveLoading}</span>
                   <span className="text-emerald-700 dark:text-emerald-400 truncate">Done: {ailCompletedLoading}</span>
                 </div>
               </div>
 
               {/* AHPL Division Box */}
-              <div className="bg-white/50 dark:bg-slate-800/40 p-2.5 sm:p-3 rounded-xl border border-amber-200/80 dark:border-slate-700/80 space-y-2 min-w-0">
-                <div className="flex justify-between items-center border-b border-amber-200/60 dark:border-slate-700/60 pb-1.5 min-w-0 gap-1">
-                  <span className="font-black uppercase text-xs text-amber-950 dark:text-amber-200 tracking-wider truncate">
-                    AHPL Division
+              <div className="bg-white/50 dark:bg-[#252f3f]/80 p-2.5 rounded-xl border border-amber-200/80 dark:border-slate-700 space-y-1.5 min-w-0">
+                <div className="flex justify-between items-center border-b border-amber-200/60 dark:border-slate-700 pb-1 min-w-0 gap-1">
+                  <span className="font-black uppercase text-xs text-amber-950 dark:text-white tracking-wider truncate">
+                    AHPL
                   </span>
                   <span className="text-xs font-black text-amber-900 dark:text-amber-300 font-mono shrink-0">
                     {ahplLoadingCount} Veh
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs min-w-0 gap-1">
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold shrink-0">Cases:</span>
-                  <span className="font-mono font-black text-amber-950 dark:text-amber-100 text-xs sm:text-sm truncate">
+                  <span className="text-slate-600 dark:text-slate-300 font-semibold shrink-0">C:</span>
+                  <span className="font-mono font-black text-amber-950 dark:text-white text-xs truncate">
                     {(ahplLoadedCases || 0).toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-[10px] sm:text-[11px] pt-1.5 border-t border-amber-200/50 dark:border-slate-700/60 font-semibold min-w-0 gap-1">
+                <div className="flex justify-between items-center text-[10px] pt-1 border-t border-amber-200/50 dark:border-slate-700 font-semibold min-w-0 gap-1">
                   <span className="text-amber-800 dark:text-amber-400 truncate">Active: {ahplActiveLoading}</span>
                   <span className="text-emerald-700 dark:text-emerald-400 truncate">Done: {ahplCompletedLoading}</span>
                 </div>
@@ -674,251 +674,172 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Card 2: RAIL DISPATCH CARD (Synchronized AIL & AHPL with side-by-side Co./Cases and Lo./Cases & bolded Total Rail) */}
-          <div className="widget-card bg-indigo-50/80 dark:bg-[#242c3d] rounded-2xl border border-indigo-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-4 space-y-3 max-w-full overflow-hidden">
-            <div className="flex justify-between items-center gap-2 text-indigo-950 dark:text-indigo-300 pb-2.5 border-b border-indigo-200/80 dark:border-[#3e4859] min-w-0">
+          {/* Card 2: UNIFIED RAIL & AIR DISPATCH CARD */}
+          <div className="widget-card bg-indigo-50/80 dark:bg-[#1e2530] rounded-2xl border border-indigo-300 dark:border-blue-500 shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-4 space-y-3 max-w-full overflow-hidden">
+            <div className="flex justify-between items-center gap-2 text-indigo-950 dark:text-white pb-2.5 border-b border-indigo-200/80 dark:border-slate-700 min-w-0">
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <div className="p-2 rounded-xl bg-indigo-600 text-white shadow-xs shrink-0 flex items-center justify-center">
-                  <Train className="w-4 h-4" />
+                <div className="p-2 rounded-xl bg-indigo-600 text-white shadow-xs shrink-0 flex items-center gap-1">
+                  <Train className="w-3.5 h-3.5" />
+                  <Plane className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-indigo-950 dark:text-indigo-100 truncate">
-                      Rail Dispatch
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-indigo-950 dark:text-white truncate">
+                      Rail & Air Dispatch
                     </h3>
                     <span className="px-1.5 py-0.5 bg-indigo-200/80 dark:bg-indigo-900/60 text-indigo-950 dark:text-indigo-200 rounded text-[9px] font-black uppercase tracking-wider shrink-0">
-                      Spark Time
+                      AIL & AHPL
                     </span>
                   </div>
-                  <p className="text-[10px] text-indigo-800/90 dark:text-indigo-400 font-medium truncate mt-0.5">
-                    Synchronized AIL &amp; AHPL
+                  <p className="text-[10px] text-indigo-800/90 dark:text-slate-300 font-medium truncate mt-0.5">
+                    Synchronized Dispatch Hub
                   </p>
                 </div>
               </div>
 
-              <div className="bg-indigo-100/90 dark:bg-indigo-950/80 px-2.5 py-1.5 rounded-xl border border-indigo-300/80 dark:border-indigo-800/70 text-right shrink-0">
-                <div className="text-sm sm:text-base font-black text-indigo-950 dark:text-indigo-100 leading-none font-mono">
-                  {railMetrics.totalCases.toLocaleString()} <span className="text-[10px] font-bold font-sans">Cs</span>
+              <div className="bg-indigo-100/90 dark:bg-[#252f3f] px-2.5 py-1.5 rounded-xl border border-indigo-300 dark:border-slate-700 text-right shrink-0">
+                <div className="text-sm sm:text-base font-black text-indigo-950 dark:text-white leading-none font-mono">
+                  {(railMetrics.totalCases + airMetrics.totalCases).toLocaleString()} <span className="text-[10px] font-bold font-sans">C</span>
                 </div>
                 <div className="text-[10px] font-extrabold text-indigo-800 dark:text-indigo-300 mt-0.5">
-                  {railMetrics.totalLocations} Locs
+                  {(railMetrics.totalLocations + airMetrics.totalLocations)} Locs
                 </div>
               </div>
             </div>
 
-            {/* Responsive grid segmenting Co./Cases and Lo./Cases side-by-side */}
+            {/* Breakdown Grid for Rail & Air */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              {/* Co./Cases Column */}
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 rounded-xl border border-indigo-200/80 dark:border-slate-700/80 space-y-1.5 flex flex-col justify-between">
+              {/* Rail Dispatch Box */}
+              <div className="bg-white/80 dark:bg-[#252f3f] p-2.5 rounded-xl border border-indigo-200/80 dark:border-slate-700 space-y-1.5 flex flex-col justify-between">
                 <div className="text-[10px] font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200 border-b border-indigo-100 dark:border-slate-700 pb-1 flex justify-between items-center">
-                  <span>Co./Cases</span>
-                  <span className="font-mono text-emerald-700 dark:text-emerald-400">AIL / AHPL</span>
+                  <span>Rail Dispatch</span>
+                  <span className="font-mono text-indigo-700 dark:text-indigo-400">{railMetrics.totalLocations} Locs</span>
                 </div>
-                <div className="space-y-1 pt-1">
+                <div className="space-y-1 pt-0.5">
                   <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL Co:</span>
-                    <span className="font-mono font-black text-emerald-950 dark:text-emerald-100 text-xs">{railMetrics.ail.cases.toLocaleString()} Cs</span>
+                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL:</span>
+                    <span className="font-mono font-black text-emerald-950 dark:text-white text-xs">{railMetrics.ail.cases.toLocaleString()} C</span>
                   </div>
                   <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded-lg border border-blue-200 dark:border-blue-900/60">
-                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL Co:</span>
-                    <span className="font-mono font-black text-blue-950 dark:text-blue-100 text-xs">{railMetrics.ahpl.cases.toLocaleString()} Cs</span>
+                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL:</span>
+                    <span className="font-mono font-black text-blue-950 dark:text-white text-xs">{railMetrics.ahpl.cases.toLocaleString()} C</span>
                   </div>
                 </div>
               </div>
 
-              {/* Lo./Cases Column */}
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 rounded-xl border border-indigo-200/80 dark:border-slate-700/80 space-y-1.5 flex flex-col justify-between">
-                <div className="text-[10px] font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200 border-b border-indigo-100 dark:border-slate-700 pb-1 flex justify-between items-center">
-                  <span>Lo./Cases</span>
-                  <span className="font-mono text-indigo-700 dark:text-indigo-400">Locations</span>
+              {/* Air Dispatch Box */}
+              <div className="bg-white/80 dark:bg-[#252f3f] p-2.5 rounded-xl border border-violet-200/80 dark:border-slate-700 space-y-1.5 flex flex-col justify-between">
+                <div className="text-[10px] font-black uppercase tracking-wider text-violet-900 dark:text-violet-200 border-b border-violet-100 dark:border-slate-700 pb-1 flex justify-between items-center">
+                  <span>Air Dispatch</span>
+                  <span className="font-mono text-violet-700 dark:text-violet-400">{airMetrics.totalLocations} Locs</span>
                 </div>
-                <div className="space-y-1 pt-1">
-                  <div className="flex justify-between items-center bg-emerald-50/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg border border-emerald-200/60 dark:border-slate-700">
-                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL Lo:</span>
-                    <span className="font-mono font-black text-indigo-950 dark:text-indigo-100 text-xs">{railMetrics.ail.locations} Locs</span>
+                <div className="space-y-1 pt-0.5">
+                  <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
+                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL:</span>
+                    <span className="font-mono font-black text-emerald-950 dark:text-white text-xs">{airMetrics.ail.cases.toLocaleString()} C</span>
                   </div>
-                  <div className="flex justify-between items-center bg-blue-50/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg border border-blue-200/60 dark:border-slate-700">
-                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL Lo:</span>
-                    <span className="font-mono font-black text-indigo-950 dark:text-indigo-100 text-xs">{railMetrics.ahpl.locations} Locs</span>
+                  <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded-lg border border-blue-200 dark:border-blue-900/60">
+                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL:</span>
+                    <span className="font-mono font-black text-blue-950 dark:text-white text-xs">{airMetrics.ahpl.cases.toLocaleString()} C</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Bolded Combined Total for Rail */}
-            <div className="flex items-center justify-between pt-2 border-t border-indigo-200/80 dark:border-[#3e4859] text-[10px] sm:text-xs font-bold text-indigo-950 dark:text-indigo-200">
-              <span className="uppercase tracking-wider font-extrabold text-indigo-900 dark:text-indigo-300">Total Rail:</span>
-              <span className="font-mono font-black text-indigo-900 dark:text-indigo-100 text-xs sm:text-sm bg-indigo-100/80 dark:bg-indigo-950 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800">
-                {railMetrics.totalCases.toLocaleString()} Cases ({railMetrics.totalLocations} Locs)
+            {/* Combined Total Footer */}
+            <div className="flex items-center justify-between pt-2 border-t border-indigo-200/80 dark:border-slate-700 text-[10px] sm:text-xs font-bold text-indigo-950 dark:text-white">
+              <span className="uppercase tracking-wider font-extrabold text-indigo-900 dark:text-slate-300">Total Rail & Air:</span>
+              <span className="font-mono font-black text-indigo-900 dark:text-white text-xs sm:text-sm bg-indigo-100/80 dark:bg-[#252f3f] px-2 py-0.5 rounded-md border border-indigo-200 dark:border-slate-700">
+                {(railMetrics.totalCases + airMetrics.totalCases).toLocaleString()} C ({(railMetrics.totalLocations + airMetrics.totalLocations)} Locs)
               </span>
             </div>
           </div>
 
-          {/* Card 3: AIR DISPATCH CARD (Synchronized AIL & AHPL with side-by-side Co./Cases and Lo./Cases & bolded Total Air) */}
-          <div className="widget-card bg-violet-50/80 dark:bg-[#242c3d] rounded-2xl border border-violet-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-4 space-y-3 max-w-full overflow-hidden">
-            <div className="flex justify-between items-center gap-2 text-violet-950 dark:text-violet-300 pb-2.5 border-b border-violet-200/80 dark:border-[#3e4859] min-w-0">
+          {/* Card 3: CONSOLIDATED UNLOADING VEHICLES CARD */}
+          <div className="widget-card bg-blue-50/80 dark:bg-[#1e2530] rounded-2xl border border-blue-300 dark:border-emerald-500 shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-4 space-y-3 max-w-full overflow-hidden">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 text-blue-950 dark:text-white pb-2.5 border-b border-blue-200/80 dark:border-slate-700 min-w-0">
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <div className="p-2 rounded-xl bg-violet-600 text-white shadow-xs shrink-0 flex items-center justify-center">
-                  <Plane className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-violet-950 dark:text-violet-100 truncate">
-                      Air Dispatch
-                    </h3>
-                    <span className="px-1.5 py-0.5 bg-violet-200/80 dark:bg-violet-900/60 text-violet-950 dark:text-violet-200 rounded text-[9px] font-black uppercase tracking-wider shrink-0">
-                      Star &amp; SD
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-violet-800/90 dark:text-violet-400 font-medium truncate mt-0.5">
-                    Synchronized AIL &amp; AHPL
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-violet-100/90 dark:bg-violet-950/80 px-2.5 py-1.5 rounded-xl border border-violet-300/80 dark:border-violet-800/70 text-right shrink-0">
-                <div className="text-sm sm:text-base font-black text-violet-950 dark:text-violet-100 leading-none font-mono">
-                  {airMetrics.totalCases.toLocaleString()} <span className="text-[10px] font-bold font-sans">Cs</span>
-                </div>
-                <div className="text-[10px] font-extrabold text-violet-800 dark:text-violet-300 mt-0.5">
-                  {airMetrics.totalLocations} Locs
-                </div>
-              </div>
-            </div>
-
-            {/* Responsive grid segmenting Co./Cases and Lo./Cases side-by-side */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              {/* Co./Cases Column */}
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 rounded-xl border border-violet-200/80 dark:border-slate-700/80 space-y-1.5 flex flex-col justify-between">
-                <div className="text-[10px] font-black uppercase tracking-wider text-violet-900 dark:text-violet-200 border-b border-violet-100 dark:border-slate-700 pb-1 flex justify-between items-center">
-                  <span>Co./Cases</span>
-                  <span className="font-mono text-emerald-700 dark:text-emerald-400">AIL / AHPL</span>
-                </div>
-                <div className="space-y-1 pt-1">
-                  <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL Co:</span>
-                    <span className="font-mono font-black text-emerald-950 dark:text-emerald-100 text-xs">{airMetrics.ail.cases.toLocaleString()} Cs</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded-lg border border-blue-200 dark:border-blue-900/60">
-                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL Co:</span>
-                    <span className="font-mono font-black text-blue-950 dark:text-blue-100 text-xs">{airMetrics.ahpl.cases.toLocaleString()} Cs</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Lo./Cases Column */}
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 rounded-xl border border-violet-200/80 dark:border-slate-700/80 space-y-1.5 flex flex-col justify-between">
-                <div className="text-[10px] font-black uppercase tracking-wider text-violet-900 dark:text-violet-200 border-b border-violet-100 dark:border-slate-700 pb-1 flex justify-between items-center">
-                  <span>Lo./Cases</span>
-                  <span className="font-mono text-violet-700 dark:text-violet-400">Locations</span>
-                </div>
-                <div className="space-y-1 pt-1">
-                  <div className="flex justify-between items-center bg-emerald-50/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg border border-emerald-200/60 dark:border-slate-700">
-                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL Lo:</span>
-                    <span className="font-mono font-black text-violet-950 dark:text-violet-100 text-xs">{airMetrics.ail.locations} Locs</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-blue-50/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg border border-blue-200/60 dark:border-slate-700">
-                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL Lo:</span>
-                    <span className="font-mono font-black text-violet-950 dark:text-violet-100 text-xs">{airMetrics.ahpl.locations} Locs</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bolded Combined Total for Air */}
-            <div className="flex items-center justify-between pt-2 border-t border-violet-200/80 dark:border-[#3e4859] text-[10px] sm:text-xs font-bold text-violet-950 dark:text-violet-200">
-              <span className="uppercase tracking-wider font-extrabold text-violet-900 dark:text-violet-300">Total Air:</span>
-              <span className="font-mono font-black text-violet-900 dark:text-violet-100 text-xs sm:text-sm bg-violet-100/80 dark:bg-violet-950 px-2 py-0.5 rounded-md border border-violet-200 dark:border-violet-800">
-                {airMetrics.totalCases.toLocaleString()} Cases ({airMetrics.totalLocations} Locs)
-              </span>
-            </div>
-          </div>
-
-          {/* Card 4: CONSOLIDATED UNLOADING VEHICLES CARD (Active Unloading) */}
-          <div className="widget-card bg-blue-50/80 dark:bg-[#242c3d] rounded-2xl border border-blue-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-5 space-y-3.5 max-w-full overflow-hidden">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-blue-950 dark:text-blue-300 pb-3 border-b border-blue-200/80 dark:border-[#3e4859] min-w-0">
-              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                <div className="p-2 sm:p-2.5 rounded-xl bg-blue-600 text-white shadow-xs shrink-0">
+                <div className="p-2 rounded-xl bg-blue-600 text-white shadow-xs shrink-0">
                   <DownloadCloud className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm sm:text-base font-black uppercase tracking-wider text-blue-950 dark:text-blue-100 truncate">
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-blue-950 dark:text-white truncate">
                       Unloading Vehicles
                     </h3>
-                    <span className="px-1.5 py-0.5 bg-blue-200/80 dark:bg-blue-900/60 text-blue-950 dark:text-blue-200 rounded-md text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider shrink-0">
+                    <span className="px-1.5 py-0.5 bg-blue-200/80 dark:bg-blue-900/60 text-blue-950 dark:text-blue-200 rounded-md text-[9px] font-black uppercase tracking-wider shrink-0">
                       AIL & AHPL
                     </span>
                   </div>
-                  <p className="text-[11px] sm:text-xs text-blue-800/90 dark:text-blue-400 font-medium mt-0.5 truncate">
+                  <p className="text-[10px] sm:text-xs text-blue-800/90 dark:text-slate-300 font-medium mt-0.5 truncate">
                     Consolidated Unloading Operations
                   </p>
                 </div>
               </div>
 
-              <div className="w-full sm:w-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center text-left sm:text-right bg-blue-100/90 dark:bg-blue-950/80 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-blue-300/80 dark:border-blue-800/70 shrink-0 max-w-full">
-                <div className="text-xl sm:text-2xl font-black text-blue-950 dark:text-blue-100 leading-none font-mono">
-                  {totalUnloadingVehicles} <span className="text-xs font-bold font-sans">Veh</span>
+              <div className="w-full sm:w-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center text-left sm:text-right bg-blue-100/90 dark:bg-[#252f3f] px-2.5 py-1.5 rounded-xl border border-blue-300 dark:border-slate-700 shrink-0 max-w-full">
+                <div className="text-base sm:text-lg font-black text-blue-950 dark:text-white leading-none font-mono">
+                  {totalUnloadingVehicles} <span className="text-[10px] font-bold font-sans">Veh</span>
                 </div>
-                <div className="text-xs font-extrabold text-blue-800 dark:text-blue-300 sm:mt-1 whitespace-nowrap">
-                  {(totalUnloadedCases || 0).toLocaleString()} Total Cases
+                <div className="text-[10px] font-extrabold text-blue-800 dark:text-blue-300 sm:mt-0.5 whitespace-nowrap">
+                  {(totalUnloadedCases || 0).toLocaleString()} Total C
                 </div>
               </div>
             </div>
 
             {/* Total Active vs Completed Overall Row */}
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 text-xs">
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 sm:p-3 rounded-xl border border-blue-200/80 dark:border-slate-700/80 flex justify-between items-center min-w-0">
-                <span className="text-[11px] sm:text-xs font-extrabold uppercase text-blue-900/90 dark:text-slate-300 tracking-wider truncate">Active Unloading</span>
-                <span className="font-mono font-black text-blue-600 dark:text-blue-400 text-base sm:text-lg shrink-0 ml-1">{activeUnloadingVehicles}</span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-white/80 dark:bg-[#252f3f] p-2.5 rounded-xl border border-blue-200/80 dark:border-slate-700 flex justify-between items-center min-w-0">
+                <span className="text-[10px] font-extrabold uppercase text-blue-900/90 dark:text-slate-200 tracking-wider truncate">Active Unloading</span>
+                <span className="font-mono font-black text-blue-600 dark:text-blue-400 text-sm sm:text-base shrink-0 ml-1">{activeUnloadingVehicles}</span>
               </div>
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 sm:p-3 rounded-xl border border-blue-200/80 dark:border-slate-700/80 flex justify-between items-center min-w-0">
-                <span className="text-[11px] sm:text-xs font-extrabold uppercase text-emerald-900/90 dark:text-slate-300 tracking-wider truncate">Unloaded / Done</span>
-                <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 text-base sm:text-lg shrink-0 ml-1">{completedUnloadingVehicles}</span>
+              <div className="bg-white/80 dark:bg-[#252f3f] p-2.5 rounded-xl border border-blue-200/80 dark:border-slate-700 flex justify-between items-center min-w-0">
+                <span className="text-[10px] font-extrabold uppercase text-emerald-900/90 dark:text-slate-200 tracking-wider truncate">Unloaded / Done</span>
+                <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm sm:text-base shrink-0 ml-1">{completedUnloadingVehicles}</span>
               </div>
             </div>
 
             {/* Division Breakdown: AIL and AHPL inside Unloading Card */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {/* AIL Division Box */}
-              <div className="bg-white/50 dark:bg-slate-800/40 p-2.5 sm:p-3 rounded-xl border border-blue-200/80 dark:border-slate-700/80 space-y-2 min-w-0">
-                <div className="flex justify-between items-center border-b border-blue-200/60 dark:border-slate-700/60 pb-1.5 min-w-0 gap-1">
-                  <span className="font-black uppercase text-xs text-blue-950 dark:text-blue-200 tracking-wider truncate">
-                    AIL Division
+              <div className="bg-white/50 dark:bg-[#252f3f]/80 p-2.5 rounded-xl border border-blue-200/80 dark:border-slate-700 space-y-1.5 min-w-0">
+                <div className="flex justify-between items-center border-b border-blue-200/60 dark:border-slate-700 pb-1 min-w-0 gap-1">
+                  <span className="font-black uppercase text-xs text-blue-950 dark:text-white tracking-wider truncate">
+                    AIL
                   </span>
                   <span className="text-xs font-black text-blue-900 dark:text-blue-300 font-mono shrink-0">
                     {ailUnloadingCount} Veh
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs min-w-0 gap-1">
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold shrink-0">Cases:</span>
-                  <span className="font-mono font-black text-blue-950 dark:text-blue-100 text-xs sm:text-sm truncate">
+                  <span className="text-slate-600 dark:text-slate-300 font-semibold shrink-0">C:</span>
+                  <span className="font-mono font-black text-blue-950 dark:text-white text-xs truncate">
                     {(ailUnloadedCases || 0).toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-[10px] sm:text-[11px] pt-1.5 border-t border-blue-200/50 dark:border-slate-700/60 font-semibold min-w-0 gap-1">
+                <div className="flex justify-between items-center text-[10px] pt-1 border-t border-blue-200/50 dark:border-slate-700 font-semibold min-w-0 gap-1">
                   <span className="text-blue-800 dark:text-blue-400 truncate">Active: {ailActiveUnloading}</span>
                   <span className="text-emerald-700 dark:text-emerald-400 truncate">Done: {ailCompletedUnloading}</span>
                 </div>
               </div>
 
               {/* AHPL Division Box */}
-              <div className="bg-white/50 dark:bg-slate-800/40 p-2.5 sm:p-3 rounded-xl border border-blue-200/80 dark:border-slate-700/80 space-y-2 min-w-0">
-                <div className="flex justify-between items-center border-b border-blue-200/60 dark:border-slate-700/60 pb-1.5 min-w-0 gap-1">
-                  <span className="font-black uppercase text-xs text-blue-950 dark:text-blue-200 tracking-wider truncate">
-                    AHPL Division
+              <div className="bg-white/50 dark:bg-[#252f3f]/80 p-2.5 rounded-xl border border-blue-200/80 dark:border-slate-700 space-y-1.5 min-w-0">
+                <div className="flex justify-between items-center border-b border-blue-200/60 dark:border-slate-700 pb-1 min-w-0 gap-1">
+                  <span className="font-black uppercase text-xs text-blue-950 dark:text-white tracking-wider truncate">
+                    AHPL
                   </span>
                   <span className="text-xs font-black text-blue-900 dark:text-blue-300 font-mono shrink-0">
                     {ahplUnloadingCount} Veh
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs min-w-0 gap-1">
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold shrink-0">Cases:</span>
-                  <span className="font-mono font-black text-blue-950 dark:text-blue-100 text-xs sm:text-sm truncate">
+                  <span className="text-slate-600 dark:text-slate-300 font-semibold shrink-0">C:</span>
+                  <span className="font-mono font-black text-blue-950 dark:text-white text-xs truncate">
                     {(ahplUnloadedCases || 0).toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-[10px] sm:text-[11px] pt-1.5 border-t border-blue-200/50 dark:border-slate-700/60 font-semibold min-w-0 gap-1">
+                <div className="flex justify-between items-center text-[10px] pt-1 border-t border-blue-200/50 dark:border-slate-700 font-semibold min-w-0 gap-1">
                   <span className="text-blue-800 dark:text-blue-400 truncate">Active: {ahplActiveUnloading}</span>
                   <span className="text-emerald-700 dark:text-emerald-400 truncate">Done: {ahplCompletedUnloading}</span>
                 </div>

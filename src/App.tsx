@@ -94,10 +94,10 @@ import { MasterLogsView } from './views/MasterLogsView';
 
 export default function App() {
   // Theme state (robust persistence)
-  const [theme, setTheme] = useState<'dark' | 'light' | 'amoled' | 'cream' | 'material' | 'light-brown' | 'sky-blue' | 'glass'>(() => {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     try {
       const saved = localStorage.getItem('wms_theme') || localStorage.getItem('themePrefs') as any;
-      if (['dark', 'light', 'amoled', 'cream', 'material', 'light-brown', 'sky-blue', 'glass'].includes(saved)) return saved;
+      if (['dark', 'light'].includes(saved)) return saved;
     } catch(e) {}
     return 'dark';
   });
@@ -179,7 +179,8 @@ export default function App() {
     if (theme === 'dark') {
       htmlEl.classList.add('dark');
       bodyEl.classList.add('dark');
-    } else if (theme === 'light') {
+    }
+    if (theme === 'light') {
       htmlEl.classList.add('light');
       bodyEl.classList.add('light');
     } else if (theme === 'amoled') {
@@ -1336,13 +1337,10 @@ export default function App() {
                   value={theme}
                   onChange={(e) => setTheme(e.target.value as any)}
                   className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs rounded-xl px-2.5 py-2 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
-                  title="Select Professional Theme"
+                  title="Select Theme Mode"
                 >
-                  <option value="dark">Classic Pink & Maroon</option>
-                  <option value="light">Crisp SaaS Light</option>
-                  <option value="amoled">AMOLED Pitch Black</option>
-                  <option value="cream">Soft Cream & Premium</option>
-                  <option value="material">Material DayNight</option>
+                  <option value="dark">Dark Mode</option>
+                  <option value="light">Light Mode</option>
                 </select>
 
                 <button
@@ -1350,15 +1348,15 @@ export default function App() {
                   className="flex items-center justify-center min-h-[44px] min-w-[44px] gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-full px-3.5 py-2 shadow-2xs transition touch-manipulation cursor-pointer"
                   title="Toggle Dark/Light Mode"
                 >
-                  {theme === 'dark' ? (
+                  {theme === 'light' ? (
                     <>
-                      <Sun className="w-4 h-4 text-amber-500" />
-                      <span className="text-xs font-bold text-slate-200 hidden sm:inline">Light</span>
+                      <Moon className="w-4 h-4 text-cyan-400" />
+                      <span className="text-xs font-bold text-slate-700 hidden sm:inline">Dark</span>
                     </>
                   ) : (
                     <>
-                      <Moon className="w-4 h-4 text-blue-600" />
-                      <span className="text-xs font-bold text-slate-700 hidden sm:inline">Dark</span>
+                      <Sun className="w-4 h-4 text-amber-500" />
+                      <span className="text-xs font-bold text-slate-200 hidden sm:inline">Light</span>
                     </>
                   )}
                 </button>
