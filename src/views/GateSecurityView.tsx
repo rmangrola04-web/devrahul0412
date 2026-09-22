@@ -165,13 +165,13 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
   const [transporter, setTransporter] = useState(transporters[0] || 'V-Trans');
   
   // Conditional Drop Location Source (Loading vs Unloading)
-  const isRailAirOrCourier = purpose === 'Loading' && Boolean(vType && (
+  const isRailAirOrCourier = Boolean(vType && (
     vType.toUpperCase().includes('RAIL') || 
     vType.toUpperCase().includes('AIR') || 
     vType.toUpperCase().includes('COURIER')
   ));
 
-  const isCourierOrSpecialTransporter = purpose === 'Loading' && Boolean(transporter && (
+  const isCourierOrSpecialTransporter = Boolean(transporter && (
     transporter.toUpperCase().includes('SPARK TIME') ||
     transporter.toUpperCase().includes('SD CARGO') ||
     transporter.toUpperCase().includes('STAR LINE') ||
@@ -181,20 +181,22 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
   ));
 
   const availableLocations = React.useMemo(() => {
-    // 2. UNLOADING LOCATION SOURCE (STRICT COLUMN B):
-    // For all Unloading operations, the location dropdown/picker must strictly fetch and populate locations exclusively from Column B of the Location Master (unloadLocations). Under no circumstances should unloading pull from loading sources.
+    const isSpecialCourierOrMode = isRailAirOrCourier || isCourierOrSpecialTransporter;
+
+    // 2. UNLOADING LOCATION SOURCE:
     if (purpose === 'Unloading') {
       const validUnloads = filterValidLocations(unloadLocations || [], 'UNLOADING') as string[];
+      if (isSpecialCourierOrMode) {
+        return validUnloads.length > 0 ? validUnloads : ['CFC', 'MUMBAI', 'DELHI', 'BANGALORE', 'CHENNAI', 'KOLKATA', 'HYDERABAD', 'PUNE', 'AHMEDABAD', 'JAIPUR', 'LUCKNOW', 'GUWAHATI', 'PATNA'];
+      }
       return validUnloads.length > 0 ? validUnloads : [];
     }
 
     const validLoads = filterValidLocations(loadLocations || [], 'LOADING') as string[];
 
     // 1. LOADING LOCATION SOURCE (CONDITIONAL):
-    // For specific courier/mode entries (such as Spark Time / Rail, SD Cargo / Air, or Star Line / Air), respect their designated routing and loading master configurations.
-    const isSpecialCourierOrMode = isRailAirOrCourier || isCourierOrSpecialTransporter;
     if (isSpecialCourierOrMode) {
-      return validLoads.length > 0 ? validLoads : ['CFC', 'MUMBAI', 'DELHI', 'BANGALORE', 'CHENNAI', 'KOLKATA', 'HYDERABAD', 'PUNE', 'AHMEDABAD', 'JAIPUR', 'LUCKNOW'];
+      return validLoads.length > 0 ? validLoads : ['CFC', 'MUMBAI', 'DELHI', 'BANGALORE', 'CHENNAI', 'KOLKATA', 'HYDERABAD', 'PUNE', 'AHMEDABAD', 'JAIPUR', 'LUCKNOW', 'GUWAHATI', 'PATNA'];
     }
 
     // For standard loading tasks: locations must be picked directly from Consolidated Loading Plans (Pending Plans Only).
@@ -319,9 +321,8 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
     let autoAssignedDock = 'Unassigned';
     
     // Resolve combined destination for Milk Route or Multi-Select Rail/Air/Courier
-    const combinedDestination = isRailAirOrCourier && milkRouteDestinations.length > 0
-      ? milkRouteDestinations.map(m => `${m.location} [${m.unit}]`).join(' / ')
-      : routeType === 'Milk Route' && milkRouteDestinations.length > 0 
+    const isMultiDest = isRailAirOrCourier || isCourierOrSpecialTransporter || routeType === 'Milk Route';
+    const combinedDestination = isMultiDest && milkRouteDestinations.length > 0
       ? milkRouteDestinations.map(m => `${m.location} [${m.unit}]`).join(' / ')
       : destination;
 
@@ -351,14 +352,14 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
       remarks: supervisorNameRemarks,
       unit: mapped.division,
       grNo: '', 
-      routeType: isRailAirOrCourier ? 'Milk Route' : routeType,
-      milkRouteDestinations: (isRailAirOrCourier || routeType === 'Milk Route') ? milkRouteDestinations : [],
+      routeType: isMultiDest && milkRouteDestinations.length > 1 ? 'Milk Route' : routeType,
+      milkRouteDestinations: (isMultiDest || milkRouteDestinations.length > 0) ? milkRouteDestinations : [],
       assignedDock: autoAssignedDock,
       loadingStartInTime: loadingStartInTime,
       loadingExitTime: loadingExitTime,
       totalCases: totalCases,
       supervisorNameRemarks: supervisorNameRemarks,
-      multiDestinations: isRailAirOrCourier ? selectedMultiDestinations : [],
+      multiDestinations: milkRouteDestinations.length > 0 ? milkRouteDestinations.map(m => m.location) : (selectedMultiDestinations.length > 0 ? selectedMultiDestinations : []),
       status: 'PENDING_QUEUE'
     };
 
@@ -581,11 +582,11 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
                       </div>
                     )}
                   </div>
-                ) : isRailAirOrCourier ? (
+                ) : (isRailAirOrCourier || isCourierOrSpecialTransporter) ? (
                   <div className="space-y-2 p-3 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300">
-                        Milk Route Multi-Locations ({milkRouteDestinations.length} stops)
+                        Air / Rail / Courier Multi-Locations ({milkRouteDestinations.length} stops)
                       </span>
                       <div className="flex gap-2">
                         <button
@@ -594,7 +595,7 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
                             setSelectedMultiDestinations([...availableLocations]);
                             setMilkRouteDestinations(availableLocations.map(loc => ({ location: loc, unit: loadDivision })));
                           }}
-                          className="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                          className="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer"
                         >
                           Select All
                         </button>
@@ -604,7 +605,7 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
                             setSelectedMultiDestinations([]);
                             setMilkRouteDestinations([]);
                           }}
-                          className="text-[10px] text-rose-600 dark:text-rose-400 font-bold hover:underline"
+                          className="text-[10px] text-rose-600 dark:text-rose-400 font-bold hover:underline cursor-pointer"
                         >
                           Clear All
                         </button>
@@ -612,7 +613,7 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
                     </div>
                     <div className="max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-1.5 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
                       {availableLocations.map(loc => {
-                        const isSelected = selectedMultiDestinations.includes(loc);
+                        const isSelected = selectedMultiDestinations.includes(loc) || milkRouteDestinations.some(m => m.location === loc);
                         return (
                           <label
                             key={loc}
@@ -643,11 +644,52 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
                         );
                       })}
                     </div>
+
+                    {/* Custom Stop Input for Courier or Specialized Route */}
+                    <div className="flex gap-1.5 pt-1">
+                      <input
+                        type="text"
+                        placeholder="+ Type extra destination name..."
+                        id="custom-guard-dest-input"
+                        className="flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 uppercase font-mono font-bold"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const val = (e.currentTarget.value || '').trim().toUpperCase();
+                            if (val && !milkRouteDestinations.some(m => m.location === val)) {
+                              setMilkRouteDestinations(prev => [...prev, { location: val, unit: loadDivision }]);
+                              setSelectedMultiDestinations(prev => [...prev, val]);
+                              e.currentTarget.value = '';
+                            }
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById('custom-guard-dest-input') as HTMLInputElement;
+                          if (input && input.value.trim()) {
+                            const val = input.value.trim().toUpperCase();
+                            if (!milkRouteDestinations.some(m => m.location === val)) {
+                              setMilkRouteDestinations(prev => [...prev, { location: val, unit: loadDivision }]);
+                              setSelectedMultiDestinations(prev => [...prev, val]);
+                              input.value = '';
+                            }
+                          }
+                        }}
+                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold cursor-pointer"
+                      >
+                        + Add Stop
+                      </button>
+                    </div>
+
                     {milkRouteDestinations.length > 0 && (
                       <div className="space-y-1.5 pt-1 max-h-36 overflow-y-auto">
                         {milkRouteDestinations.map((mItem, mIdx) => (
-                          <div key={mItem.location} className="flex items-center justify-between bg-white dark:bg-slate-800 p-1.5 rounded border border-blue-200 dark:border-blue-800 text-xs">
-                            <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{mItem.location}</span>
+                          <div key={`${mItem.location}-${mIdx}`} className="flex items-center justify-between bg-white dark:bg-slate-800 p-1.5 rounded border border-blue-200 dark:border-blue-800 text-xs">
+                            <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                              {mIdx + 1}. {mItem.location}
+                            </span>
                             <div className="flex items-center gap-2">
                               <select
                                 value={mItem.unit}
@@ -667,7 +709,7 @@ export const GateSecurityView: React.FC<GateSecurityViewProps> = ({
                                   setMilkRouteDestinations(prev => prev.filter((_, idx) => idx !== mIdx));
                                   setSelectedMultiDestinations(prev => prev.filter(l => l !== mItem.location));
                                 }}
-                                className="text-rose-600 hover:text-rose-800 p-0.5"
+                                className="text-rose-600 hover:text-rose-800 p-0.5 cursor-pointer"
                               >
                                 <X className="w-3.5 h-3.5" />
                               </button>

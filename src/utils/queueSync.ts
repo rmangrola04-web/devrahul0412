@@ -232,18 +232,31 @@ export function computeWaitingQueueItems(
     // Build target locations / destinations for this vehicle arrival
     const targets: { location: string; unit: string }[] = [];
 
-    if (veh.routeType === 'Milk Route' && veh.milkRouteDestinations && veh.milkRouteDestinations.length > 0) {
-      veh.milkRouteDestinations.forEach((m) => {
-        const loc = m.location?.trim();
-        if (!loc) return;
-        const u = m.unit?.trim().toUpperCase() || veh.unit?.trim().toUpperCase() || 'AHPL';
-        if (u === 'BOTH') {
-          targets.push({ location: loc, unit: 'AHPL' });
-          targets.push({ location: loc, unit: 'AIL' });
-        } else {
+    const hasMultipleDestinations = 
+      (veh.milkRouteDestinations && veh.milkRouteDestinations.length > 0) ||
+      (veh.multiDestinations && veh.multiDestinations.length > 0);
+
+    if (hasMultipleDestinations) {
+      if (veh.milkRouteDestinations && veh.milkRouteDestinations.length > 0) {
+        veh.milkRouteDestinations.forEach((m) => {
+          const loc = m.location?.trim();
+          if (!loc) return;
+          const u = m.unit?.trim().toUpperCase() || veh.unit?.trim().toUpperCase() || 'AHPL';
+          if (u === 'BOTH') {
+            targets.push({ location: loc, unit: 'AHPL' });
+            targets.push({ location: loc, unit: 'AIL' });
+          } else {
+            targets.push({ location: loc, unit: u });
+          }
+        });
+      } else if (veh.multiDestinations && veh.multiDestinations.length > 0) {
+        veh.multiDestinations.forEach((m: any) => {
+          const loc = typeof m === 'string' ? m.trim() : m?.location?.trim();
+          if (!loc) return;
+          const u = (typeof m === 'object' && m?.unit) ? m.unit.trim().toUpperCase() : (veh.unit?.trim().toUpperCase() || 'AHPL');
           targets.push({ location: loc, unit: u });
-        }
-      });
+        });
+      }
     } else {
       // 2. Waiting Queue me sirf 'Warehouse' likhne ki jagah actual selected location/destination show honi chahiye.
       const rawLoc = resolveQueueActualLocation(veh, isUnloadVeh);

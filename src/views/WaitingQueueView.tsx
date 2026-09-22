@@ -18,7 +18,8 @@ import {
   Trash2,
   Pencil,
   X,
-  Calendar
+  Calendar,
+  Zap
 } from 'lucide-react';
 import { LoadUnloadEntry, SecurityGateEntry, WaitingQueueItem } from '../types';
 import { computeWaitingQueueItems, isPendingGateEntry } from '../utils/queueSync';
@@ -769,7 +770,11 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
 
                 <div>
                   {/* Vehicle Header & Division */}
-                  <div className="flex justify-between items-start mb-1.5 pl-1">
+                  <div 
+                    onClick={() => onSelectVehicle(item.gateId)}
+                    className="flex justify-between items-start mb-1.5 pl-1 cursor-pointer group-hover:opacity-95"
+                    title="Click to Open Supervisor Form"
+                  >
                     <div>
                       <span className="font-mono font-black text-sm text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors block leading-tight">
                         {item.vehicle}
@@ -789,7 +794,7 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                       className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border inline-flex items-center gap-1 ${purposeColor}`}
                     >
                       {isLoad ? <UploadCloud className="w-2.5 h-2.5" /> : <DownloadCloud className="w-2.5 h-2.5" />}
-                      {item.purpose.toUpperCase()}
+                      {isLoad ? 'WAITING FOR LOADING' : 'WAITING FOR UNLOADING'}
                     </span>
 
                     {/* Color-coded Visual Status Badge indicating waiting duration */}
@@ -802,6 +807,22 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                       <span className="font-mono text-[8px] opacity-75">({waitInfo.durationText})</span>
                     </span>
                   </div>
+
+                  {/* Bulk Action Trigger for Multi-Stop / Courier Vehicles */}
+                  {(item.allTargets || []).length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectVehicle(item.gateId);
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-[11px] font-bold shadow-xs cursor-pointer transition mb-2"
+                      title="Open Bulk Submit Form for all destinations"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                      <span>⚡ Open Bulk Form ({item.allTargets?.length} Stops)</span>
+                    </button>
+                  )}
 
                   {/* Route & Destination Area (Actual selected location instead of just 'Warehouse') */}
                   <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 mb-2 pl-2 space-y-1.5">
@@ -924,7 +945,7 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                           }`}
                         >
                           {isLoad ? <UploadCloud className="w-3 h-3" /> : <DownloadCloud className="w-3 h-3" />}
-                          {item.purpose.toUpperCase()}
+                          {isLoad ? 'WAITING FOR LOADING' : 'WAITING FOR UNLOADING'}
                         </span>
                       </td>
                       <td className="py-2.5 px-3">
@@ -969,6 +990,17 @@ export const WaitingQueueView: React.FC<WaitingQueueViewProps> = ({
                       </td>
                       <td className="py-2.5 px-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {(item.allTargets || []).length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => onSelectVehicle(item.gateId)}
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1.5 rounded-lg text-xs font-bold transition shadow-xs inline-flex items-center gap-1 cursor-pointer"
+                              title="Open Bulk Form for all destinations"
+                            >
+                              <Zap className="w-3 h-3 text-amber-300 fill-amber-300" />
+                              <span>Bulk Form ({item.allTargets?.length})</span>
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => onSelectVehicle(item.gateId, { location: item.location, unit: item.unit })}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LoadUnloadEntry, ShuttleStep } from '../types';
 import { DEFAULT_LOAD_LOCATIONS } from '../data/defaultData';
+import { isCourierTransporter } from '../utils/wmsDataEngine';
 
 interface StartStepModalProps {
   entry: LoadUnloadEntry;
@@ -27,6 +28,9 @@ export const StartStepModal: React.FC<StartStepModalProps> = ({ entry, stepIndex
   const occupiedDocks = React.useMemo(() => {
     const map = new Map<string, string>();
     loadEntries.forEach(item => {
+      // Exclude courier transporters from locking regular docks
+      if (isCourierTransporter(item.transporter, item.vType || (item as any).vehicleType)) return;
+
       const st = (item.status || '').toUpperCase().trim();
       const isCompleted =
         st === 'LOADED' ||

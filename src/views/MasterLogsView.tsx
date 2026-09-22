@@ -17,7 +17,7 @@ import {
   ArrowLeftRight
 } from 'lucide-react';
 import { LoadUnloadEntry, SecurityGateEntry } from '../types';
-import { matchesWmsDateFilter, normalizeWmsDate } from '../utils/wmsDataEngine';
+import { matchesWmsDateFilter, normalizeWmsDate, isCourierTransporter } from '../utils/wmsDataEngine';
 import { AnimatedStatusChip } from '../components/AnimatedStatusChip';
 
 interface MasterLogsViewProps {
@@ -134,11 +134,11 @@ export const MasterLogsView: React.FC<MasterLogsViewProps> = ({
   }, [loadEntries, activeMode, selectedDate, startDate, endDate, selectedMonth, dockSearchQuery]);
 
   const activeLoadingCount = useMemo(() => {
-    return loadEntries.filter(l => l.opType === 'LOADING' && l.status?.includes('IN-PROGRESS')).length;
+    return loadEntries.filter(l => l.opType === 'LOADING' && l.status?.includes('IN-PROGRESS') && !isCourierTransporter(l.transporter, l.vType)).length;
   }, [loadEntries]);
 
   const activeUnloadingCount = useMemo(() => {
-    return loadEntries.filter(l => l.opType === 'UNLOADING' && l.status?.includes('IN-PROGRESS')).length;
+    return loadEntries.filter(l => l.opType === 'UNLOADING' && l.status?.includes('IN-PROGRESS') && !isCourierTransporter(l.transporter, l.vType)).length;
   }, [loadEntries]);
 
   // --- Security Gate Logs Computations ---

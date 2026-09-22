@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Edit3, X, AlertTriangle, Clock, MapPin, CheckCircle2, ShieldAlert, Play } from 'lucide-react';
 import { LoadUnloadEntry } from '../types';
 import { DOCK_CONFIG } from '../data/defaultData';
+import { isCourierTransporter } from '../utils/wmsDataEngine';
 
 interface EditOperationModalProps {
   isOpen: boolean;
@@ -45,6 +46,9 @@ export const EditOperationModal: React.FC<EditOperationModalProps> = ({
   const occupiedDocks = React.useMemo(() => {
     const map = new Map<string, string>();
     loadEntries.forEach(item => {
+      // Exclude courier transporters from locking regular docks
+      if (isCourierTransporter(item.transporter, item.vType || (item as any).vehicleType)) return;
+
       const st = (item.status || '').toUpperCase().trim();
       const isCompleted =
         st === 'LOADED' ||

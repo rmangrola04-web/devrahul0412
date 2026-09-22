@@ -7,6 +7,7 @@ import { DOCK_CONFIG, DEFAULT_SUPERVISORS, DEFAULT_VEHICLE_TYPES } from '../data
 import { StartStepModal } from '../components/StartStepModal';
 import { FinishStepModal } from '../components/FinishStepModal';
 import { AnimatedStatusChip } from '../components/AnimatedStatusChip';
+import { isCourierTransporter } from '../utils/wmsDataEngine';
 
 interface LiveDocksViewProps {
   loadEntries: LoadUnloadEntry[];
@@ -37,6 +38,9 @@ const isOpCompleted = (status?: string): boolean => {
 
 const getActivesForDock = (dockName: string, loadEntries: LoadUnloadEntry[]): LoadUnloadEntry[] => {
   return loadEntries.filter((d) => {
+    // 0. Exclude courier transporters from dock occupancy
+    if (isCourierTransporter(d.transporter, d.vType || (d as any).vehicleType)) return false;
+
     // 1. If overall operation status is completed / finished / dispatched / exited, remove from dock immediately!
     if (isOpCompleted(d.status)) return false;
 

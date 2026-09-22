@@ -427,6 +427,24 @@ export default function App() {
     }
   };
 
+  const handleAddOperations = async (newOps: LoadUnloadEntry[]) => {
+    if (!newOps || newOps.length === 0) return;
+    const newIds = new Set(newOps.map((op) => op.id));
+    // Instant optimistic UI update for all operations
+    setLoadEntries((prev) => [...newOps, ...prev.filter((op) => !newIds.has(op.id))]);
+    triggerVersionIncrement();
+    try {
+      await Promise.all(newOps.map((op) => saveOperationToFirestore(op)));
+      for (const op of newOps) {
+        if (op.status === 'LOADED') {
+          await syncPlanEntriesOnOperationComplete(op);
+        }
+      }
+    } catch (e) {
+      console.error('Error saving bulk operations to Firestore:', e);
+    }
+  };
+
   const handleSaveEditOperation = async (updated: LoadUnloadEntry) => {
     // Instant optimistic UI update
     setLoadEntries((prev) => prev.map((op) => (op.id === updated.id ? updated : op)));
@@ -1408,6 +1426,7 @@ export default function App() {
                   globalFilterValue={filterValue}
                   globalFilterEndDate={filterEndDate}
                   onAddOperation={handleAddOperation}
+                  onAddOperations={handleAddOperations}
                   onEditOperation={(entry) => setEditingOperation(entry)}
                   onDeleteOperation={handleDeleteOperation}
                   onFinishLoadModalOpen={(entry) => setFinishingLoadEntry(entry)}
@@ -1511,6 +1530,7 @@ export default function App() {
                     globalFilterValue={filterValue}
                     globalFilterEndDate={filterEndDate}
                     onAddOperation={handleAddOperation}
+                    onAddOperations={handleAddOperations}
                     onEditOperation={(entry) => setEditingOperation(entry)}
                     onDeleteOperation={handleDeleteOperation}
                     onFinishLoadModalOpen={(entry) => setFinishingLoadEntry(entry)}

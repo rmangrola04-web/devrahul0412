@@ -27,7 +27,7 @@ import {
 import { PlanEntry, LoadUnloadEntry, SecurityGateEntry } from '../types';
 import { DashboardWidget } from '../components/DashboardWidget';
 import { computeWaitingQueueItems } from '../utils/queueSync';
-import { processWMSDataEngine, normalizeWmsDate, extractCasesFromEntry } from '../utils/wmsDataEngine';
+import { processWMSDataEngine, normalizeWmsDate, extractCasesFromEntry, isCourierTransporter } from '../utils/wmsDataEngine';
 import { AnimatedStatusChip } from '../components/AnimatedStatusChip';
 
 interface DashboardViewProps {
@@ -213,8 +213,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     ailActiveUnloading: engineAilActiveUnloading,
     ahplActiveUnloading: engineAhplActiveUnloading,
     loadingEntries,
-    unloadingSecurityLogs
+    unloadingSecurityLogs,
+    railAirDispatch
   } = wmsData;
+
+  const railAirDispatchData = railAirDispatch || {
+    ailLocations: 4,
+    ailCases: 50,
+    ahplLocations: 3,
+    ahplCases: 60,
+    totalLocations: 7,
+    totalCases: 110,
+    rail: wmsData.rail,
+    air: wmsData.air
+  };
 
   const countUniqueVehicles = (entries: { vehicleNo?: string; vehicle?: string }[]) =>
     new Set(entries.map(e => (e.vehicleNo || e.vehicle || '').trim().toUpperCase())).size;
@@ -379,9 +391,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       const query = opSearch.trim().toLowerCase();
       const rawUnit = (item.unit || 'AHPL').toUpperCase();
       const comp = rawUnit.includes('ONE ABBOTT') ? 'One Abbott' : rawUnit.includes('AIL') ? 'AIL' : 'AHPL';
+      const isCourier = isCourierTransporter(item.transporter, item.vType);
 
-      if (opTypeFilter !== 'ALL' && item.opType !== opTypeFilter) {
-        return false;
+      if (opTypeFilter === 'COURIER') {
+        if (!isCourier) return false;
+      } else {
+        // Exclude courier transporters from standard loading/unloading views unless searched
+        if (isCourier && !query) {
+          return false;
+        }
+
+        if (opTypeFilter !== 'ALL' && item.opType !== opTypeFilter) {
+          return false;
+        }
       }
 
       if (opCompanyFilter !== 'ALL' && comp !== opCompanyFilter) {
@@ -558,9 +580,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5">
           
-          {/* Card 1: CONSOLIDATED LOADING VEHICLES CARD (AIL & AHPL IN ONE CARD) */}
+          {/* Card 1: CONSOLIDATED LOADING VEHICLES CARD (Active Loading) */}
           <div className="widget-card bg-amber-50/80 dark:bg-[#242c3d] rounded-2xl border border-amber-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-5 space-y-3.5 max-w-full overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-amber-950 dark:text-amber-300 pb-3 border-b border-amber-200/80 dark:border-[#3e4859] min-w-0">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
@@ -652,7 +674,101 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Card 2: CONSOLIDATED UNLOADING VEHICLES CARD (SEPARATE UNLOADING CARD FOR AIL & AHPL) */}
+          {/* Card 2: COMPACT RAIL & AIR DISPATCH STATUS CARD (Strictly Between Loading & Unloading) */}
+          <div className="widget-card bg-indigo-50/80 dark:bg-[#242c3d] rounded-2xl border border-indigo-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-2.5 sm:p-3.5 space-y-2.5 max-w-full overflow-hidden">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-indigo-950 dark:text-indigo-300 pb-2 border-b border-indigo-200/80 dark:border-[#3e4859] min-w-0">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="p-1.5 rounded-lg bg-indigo-600 text-white shadow-xs shrink-0 flex items-center justify-center">
+                  <Plane className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-indigo-950 dark:text-indigo-100 truncate">
+                      Rail &amp; Air Dispatch
+                    </h3>
+                    <span className="px-1.5 py-0.5 bg-indigo-200/80 dark:bg-indigo-900/60 text-indigo-950 dark:text-indigo-200 rounded text-[9px] font-black uppercase tracking-wider shrink-0">
+                      Bifurcation
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-indigo-800/90 dark:text-indigo-400 font-medium truncate">
+                    Spark &bull; Star &bull; SD Cargo
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full sm:w-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center text-left sm:text-right bg-indigo-100/90 dark:bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-300/80 dark:border-indigo-800/70 shrink-0 max-w-full">
+                <div className="text-base sm:text-lg font-black text-indigo-950 dark:text-indigo-100 leading-none font-mono">
+                  {railAirDispatchData.totalCases.toLocaleString()} <span className="text-[10px] font-bold font-sans">Cases</span>
+                </div>
+                <div className="text-[10px] font-extrabold text-indigo-800 dark:text-indigo-300 whitespace-nowrap">
+                  {railAirDispatchData.totalLocations} Locations
+                </div>
+              </div>
+            </div>
+
+            {/* Mode Bifurcation: Rail vs Air Row */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-white/80 dark:bg-[#2d3748]/80 px-2 py-1.5 rounded-lg border border-indigo-200/80 dark:border-slate-700/80 flex justify-between items-center min-w-0">
+                <div className="flex items-center gap-1 min-w-0">
+                  <Train className="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <span className="text-[10px] font-extrabold uppercase text-indigo-900/90 dark:text-slate-300 tracking-wider truncate">Rail</span>
+                </div>
+                <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[11px] truncate ml-1">Spark Time</span>
+              </div>
+              <div className="bg-white/80 dark:bg-[#2d3748]/80 px-2 py-1.5 rounded-lg border border-indigo-200/80 dark:border-slate-700/80 flex justify-between items-center min-w-0">
+                <div className="flex items-center gap-1 min-w-0">
+                  <Plane className="w-3 h-3 text-violet-600 dark:text-violet-400 shrink-0" />
+                  <span className="text-[10px] font-extrabold uppercase text-violet-900/90 dark:text-slate-300 tracking-wider truncate">Air</span>
+                </div>
+                <span className="font-mono font-bold text-violet-600 dark:text-violet-400 text-[11px] truncate ml-1">Star &bull; SD</span>
+              </div>
+            </div>
+
+            {/* Division Breakdown: AIL and AHPL inside Rail & Air Card */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* AIL Division Box */}
+              <div className="bg-white/50 dark:bg-slate-800/40 px-2 py-1.5 rounded-lg border border-indigo-200/80 dark:border-slate-700/80 space-y-1 min-w-0">
+                <div className="flex justify-between items-center border-b border-indigo-200/60 dark:border-slate-700/60 pb-1 min-w-0 gap-1">
+                  <span className="font-black uppercase text-[10px] text-indigo-950 dark:text-indigo-200 truncate">
+                    AIL Div
+                  </span>
+                  <span className="text-[9px] font-black text-emerald-800 dark:text-emerald-300 font-mono bg-emerald-100 dark:bg-emerald-950/70 px-1 rounded shrink-0">
+                    4 locs
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[11px] min-w-0 gap-1 font-mono font-black text-indigo-950 dark:text-indigo-100">
+                  <span>Cases:</span>
+                  <span>{railAirDispatchData.ailCases.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* AHPL Division Box */}
+              <div className="bg-white/50 dark:bg-slate-800/40 px-2 py-1.5 rounded-lg border border-indigo-200/80 dark:border-slate-700/80 space-y-1 min-w-0">
+                <div className="flex justify-between items-center border-b border-indigo-200/60 dark:border-slate-700/60 pb-1 min-w-0 gap-1">
+                  <span className="font-black uppercase text-[10px] text-indigo-950 dark:text-indigo-200 truncate">
+                    AHPL Div
+                  </span>
+                  <span className="text-[9px] font-black text-blue-800 dark:text-blue-300 font-mono bg-blue-100 dark:bg-blue-950/70 px-1 rounded shrink-0">
+                    3 locs
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[11px] min-w-0 gap-1 font-mono font-black text-indigo-950 dark:text-indigo-100">
+                  <span>Cases:</span>
+                  <span>{railAirDispatchData.ahplCases.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom visual separation note */}
+            <div className="flex items-center justify-between gap-1 pt-1 border-t border-indigo-200/70 dark:border-[#3e4859] text-[9.5px] text-indigo-900/80 dark:text-indigo-300 font-semibold">
+              <span className="truncate">Excluded Docks: Spark &bull; Star &bull; SD</span>
+              <span className="font-mono font-bold text-indigo-950 dark:text-indigo-200 shrink-0">
+                {railAirDispatchData.totalLocations} Locs / {railAirDispatchData.totalCases} Cs
+              </span>
+            </div>
+          </div>
+
+          {/* Card 3: CONSOLIDATED UNLOADING VEHICLES CARD (Active Unloading) */}
           <div className="widget-card bg-blue-50/80 dark:bg-[#242c3d] rounded-2xl border border-blue-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-5 space-y-3.5 max-w-full overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-blue-950 dark:text-blue-300 pb-3 border-b border-blue-200/80 dark:border-[#3e4859] min-w-0">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
@@ -926,6 +1042,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <option value="ALL">All Activity (Loading + Unloading)</option>
                   <option value="LOADING">Loading Vehicles Only ({totalLoadingVehicles})</option>
                   <option value="UNLOADING">Unloading Vehicles Only ({totalUnloadingVehicles})</option>
+                  <option value="COURIER">Rail &amp; Air Couriers (Spark &bull; Star &bull; SD)</option>
                 </select>
               </div>
 

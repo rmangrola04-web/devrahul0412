@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeftRight, Link as LinkIcon, Play, ArrowRight, CheckCircle2, Sparkles, X } from 'lucide-react';
+import { ArrowLeftRight, Link as LinkIcon, Play, ArrowRight, CheckCircle2, Sparkles, X, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LoadUnloadEntry, SecurityGateEntry } from '../types';
 import { DOCK_CONFIG } from '../data/defaultData';
-import { matchesWmsDateFilter, getGateRecordDate } from '../utils/wmsDataEngine';
+import { matchesWmsDateFilter, getGateRecordDate, isCourierTransporter } from '../utils/wmsDataEngine';
 import { handleFormSubmission, resolveSupervisorOpType, filterValidLocations, syncGuardToSupervisorActivity } from '../utils/activitySync';
+import { SupervisorBulkCourierForm, BulkDestItem, calculateDurationText } from '../components/SupervisorBulkCourierForm';
 
 interface LoadUnloadViewProps {
   initialGateId?: string | null;
@@ -22,6 +23,7 @@ interface LoadUnloadViewProps {
   globalFilterValue?: string;
   globalFilterEndDate?: string;
   onAddOperation: (newOp: LoadUnloadEntry) => Promise<void> | void;
+  onAddOperations?: (newOps: LoadUnloadEntry[]) => Promise<void> | void;
   onNavigateToQueue?: () => void;
 }
 
@@ -41,6 +43,7 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
   globalFilterValue,
   globalFilterEndDate,
   onAddOperation,
+  onAddOperations,
   onNavigateToQueue
 }) => {
   const [selectedGateId, setSelectedGateId] = useState(initialGateId || '');
@@ -98,6 +101,13 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [savedDetails, setSavedDetails] = useState<{ vehicle: string; bay: string; opType: string } | null>(null);
 
+  // Bulk Submit State for Air and Rail couriers (Multi-Stop destinations)
+  const [isBulkMode, setIsBulkMode] = useState<boolean>(false);
+  const [bulkDestinations, setBulkDestinations] = useState<BulkDestItem[]>([]);
+  const [masterStartTime, setMasterStartTime] = useState<string>(() => new Date().toTimeString().substring(0, 5));
+  const [masterEndTime, setMasterEndTime] = useState<string>('');
+  const [masterOperator, setMasterOperator] = useState<string>(() => supervisors[0] || 'Rahul Mangrola');
+
   // Pure logic: Filter out dummy/test/temp locations from location master list
   const validLoadLocations = useMemo(() => {
     return filterValidLocations(loadLocations, 'LOADING') as string[];
@@ -128,6 +138,9 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
   const occupiedDocks = React.useMemo(() => {
     const map = new Map<string, string>();
     loadEntries.forEach(item => {
+      // Exclude courier transporters from locking regular docks
+      if (isCourierTransporter(item.transporter, item.vType || (item as any).vehicleType)) return;
+
       const st = (item.status || '').toUpperCase().trim();
       const isCompleted =
         st === 'LOADED' ||
@@ -174,6 +187,73 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
     setStartTime(now.toTimeString().substring(0, 5));
   };
 
+  // Helper to extract all destinations from a gate entry for bulk courier operations
+  const extractGateDestinations = (gate: SecurityGateEntry): BulkDestItem[] => {
+    const result: BulkDestItem[] = [];
+    const defaultUnit = gate.unit || 'AHPL';
+
+    // 1. Milk route destinations
+    if (gate.milkRouteDestinations && gate.milkRouteDestinations.length > 0) {
+      gate.milkRouteDestinations.forEach((m, idx) => {
+        const loc = m.location?.trim();
+        if (!loc) return;
+        const u = m.unit?.trim().toUpperCase() || defaultUnit;
+        if (u === 'BOTH') {
+          result.push({ id: `dest-${idx}-ahpl`, location: loc, unit: 'AHPL', cases: '' });
+          result.push({ id: `dest-${idx}-ail`, location: loc, unit: 'AIL', cases: '' });
+        } else {
+          result.push({ id: `dest-${idx}`, location: loc, unit: u, cases: '' });
+        }
+      });
+    }
+
+    // 2. multiDestinations
+    if (result.length === 0 && (gate as any).multiDestinations && (gate as any).multiDestinations.length > 0) {
+      (gate as any).multiDestinations.forEach((m: any, idx: number) => {
+        const loc = typeof m === 'string' ? m.trim() : m?.location?.trim();
+        if (!loc) return;
+        const u = (typeof m === 'object' && m?.unit) ? m.unit.trim().toUpperCase() : defaultUnit;
+        result.push({ id: `dest-${idx}`, location: loc, unit: u, cases: '' });
+      });
+    }
+
+    // 3. Slash or comma separated destination strings (e.g. "GUWAHATI / PATNA / DELHI")
+    if (result.length === 0) {
+      const rawLoc = gate.destination || gate.toLoc || gate.fromLoc || '';
+      if (rawLoc.includes('/') || rawLoc.includes(',')) {
+        const parts = rawLoc.split(/[/,]/).map(s => s.trim()).filter(Boolean);
+        parts.forEach((p, idx) => {
+          let cleanLoc = p;
+          let stopUnit = defaultUnit === 'BOTH' ? 'AHPL' : defaultUnit;
+          const matchUnit = p.match(/\[(.*?)\]|\((.*?)\)/);
+          if (matchUnit) {
+            const uStr = (matchUnit[1] || matchUnit[2] || '').trim().toUpperCase();
+            if (uStr === 'AHPL' || uStr === 'AIL') stopUnit = uStr;
+            cleanLoc = p.replace(/\[.*?\]|\(.*?\)/g, '').trim();
+          }
+          if (cleanLoc && cleanLoc !== 'INDORE HUB' && cleanLoc !== 'WAREHOUSE') {
+            result.push({ id: `dest-${idx}`, location: cleanLoc, unit: stopUnit, cases: '' });
+          }
+        });
+      }
+    }
+
+    // 4. Fallback to single destination if exists
+    if (result.length === 0) {
+      const fallbackLoc = gate.destination || gate.toLoc || gate.fromLoc || '';
+      if (fallbackLoc && fallbackLoc !== 'WAREHOUSE' && fallbackLoc !== 'INDORE HUB') {
+        result.push({
+          id: 'dest-0',
+          location: fallbackLoc,
+          unit: defaultUnit === 'BOTH' ? 'AHPL' : defaultUnit,
+          cases: gate.totalCases ? Number(gate.totalCases) : ''
+        });
+      }
+    }
+
+    return result;
+  };
+
   const handleGateSelect = (gateId: string, specificDest?: {location: string, unit?: string} | null) => {
     setSelectedGateId(gateId);
     
@@ -200,6 +280,7 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
       setVehicleNo('');
       setFromLoc('INDORE HUB');
       setToLoc('');
+      setBulkDestinations([]);
       return;
     }
 
@@ -232,6 +313,38 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
     // Strictly set the operation activity to the exact gate purpose
     setOpType(exactOpType);
 
+    // Extract all destinations for bulk courier workflow
+    const destList = extractGateDestinations(gate);
+    setBulkDestinations(destList);
+
+    const isCourierTransporter = Boolean(
+      gate.transporter && /SPARK TIME|SD CARGO|STAR LINE|COURIER|AIR|RAIL/i.test(gate.transporter)
+    );
+    const isCourierVType = Boolean(
+      gate.vType && /AIR|RAIL|COURIER/i.test(gate.vType)
+    );
+    const hasMultipleStops = destList.length > 1;
+
+    // Supervisor Bulk Submit Trigger:
+    // If not selecting a single specific sub-destination, automatically open Bulk Form for courier/multi-location shipments!
+    if (!specificDest && (hasMultipleStops || isCourierTransporter || isCourierVType)) {
+      setIsBulkMode(true);
+    } else if (specificDest) {
+      setIsBulkMode(false);
+    }
+
+    // Master Single Time & Supervisor Field setup
+    const nowTime = new Date().toTimeString().substring(0, 5);
+    setStartTime(nowTime);
+    setMasterStartTime(gate.loadingStartInTime || nowTime);
+    setMasterEndTime(gate.loadingExitTime || '');
+    if (gate.supervisorNameRemarks) {
+      setMasterOperator(gate.supervisorNameRemarks);
+      setOperator(gate.supervisorNameRemarks);
+    } else if (supervisors.length > 0) {
+      setMasterOperator(supervisors[0]);
+    }
+
     // Division & Dock assignment
     const targetDivision = specificDest?.unit || gate.unit || (Number(gate.grNo) >= 691 ? 'AHPL' : 'AIL');
     if (targetDivision && targetDivision !== 'BOTH' && targetDivision !== 'SHUTTLE') {
@@ -261,6 +374,109 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
     }
 
     handlePickCurrentTime();
+  };
+
+  // Handle Bulk Form submission for Air/Rail Couriers
+  const handleBulkSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!vehicleNo.trim()) {
+      alert('Please select or enter a vehicle number');
+      return;
+    }
+    if (bulkDestinations.length === 0) {
+      alert('Please add at least one destination stop for bulk submission');
+      return;
+    }
+    if (!masterOperator.trim()) {
+      alert('Please select a Master Supervisor name at the top of the form');
+      return;
+    }
+
+    const occupant = occupiedDocks.get(bayNo);
+    if (occupant && occupant.toUpperCase() !== vehicleNo.trim().toUpperCase()) {
+      const proceed = confirm(`${bayNo} is currently Occupied by vehicle ${occupant}. Proceed anyway?`);
+      if (!proceed) return;
+    }
+
+    try {
+      const isUnloading = opType === 'UNLOADING';
+      const gateMatch = lookupLogs.find(
+        (s) => s.id === selectedGateId || (s.vehicle === vehicleNo.trim().toUpperCase() && s.purpose === (isUnloading ? 'Unloading' : 'Loading'))
+      );
+      const opGrNo = isUnloading ? (gateMatch?.grNo || '') : '';
+      const calculatedDuration = calculateDurationText(masterStartTime, masterEndTime);
+      const opStatus = masterEndTime.trim()
+        ? (isUnloading ? 'UNLOADED' : 'LOADED')
+        : (isUnloading ? 'UNLOADING IN-PROGRESS' : 'LOADING IN-PROGRESS');
+
+      const totalCalculatedCases = bulkDestinations.reduce(
+        (sum, d) => sum + (Number(d.cases) || 0),
+        0
+      );
+
+      // Create granular LoadUnloadEntry for each destination sharing master fields
+      const newOps: LoadUnloadEntry[] = bulkDestinations.map((dest, idx) => {
+        const stopCases = Number(dest.cases) || 0;
+        return {
+          id: `OP-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 7)}`,
+          gateId: selectedGateId || undefined,
+          entryDate: entryDate || gateMatch?.entryDate || new Date().toISOString().split('T')[0],
+          opType,
+          unit: dest.unit || unit,
+          bayNo,
+          vehicleNo: vehicleNo.trim().toUpperCase(),
+          vType: vType || 'COURIER',
+          fromLoc: isUnloading ? dest.location.trim().toUpperCase() : 'INDORE HUB',
+          toLoc: isUnloading ? 'INDORE HUB' : dest.location.trim().toUpperCase(),
+          transporter: transporter || 'N/A',
+          operator: masterOperator.trim(),
+          startTime: masterStartTime || new Date().toTimeString().substring(0, 5),
+          endTime: masterEndTime.trim() || '',
+          duration: calculatedDuration,
+          status: opStatus,
+          totalCases: stopCases,
+          damagedCases: 0,
+          damagedValue: 0,
+          podStatus: 'N/A',
+          grNo: opGrNo,
+          sealNo: sealNumber.trim() || undefined,
+          remarks: `Bulk Courier Submission (${idx + 1}/${bulkDestinations.length})`
+        };
+      });
+
+      if (onAddOperations) {
+        await onAddOperations(newOps);
+      } else {
+        for (const op of newOps) {
+          await onAddOperation(op);
+        }
+      }
+
+      setSavedDetails({
+        vehicle: vehicleNo.trim().toUpperCase(),
+        bay: bayNo,
+        opType: `${opType} Bulk (${newOps.length} Destinations, ${totalCalculatedCases} Cases)`
+      });
+      setShowSuccessToast(true);
+
+      // Reset fields
+      setSelectedGateId('');
+      setIsVehicleLocked(false);
+      setVehicleNo('');
+      setBulkDestinations([]);
+      setSealNumber('');
+      setMasterEndTime('');
+      const nowTime = new Date().toTimeString().substring(0, 5);
+      setMasterStartTime(nowTime);
+
+      setTimeout(() => {
+        setShowSuccessToast(false);
+      }, 4500);
+
+    } catch (err) {
+      console.error('Error during bulk submit:', err);
+      alert('Failed to submit bulk destinations. Please check connection and try again.');
+    }
   };
 
   // Handle form submission
@@ -461,7 +677,7 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
         )}
       </AnimatePresence>
 
-      <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-3 sm:p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
+      <div className={`${isBulkMode ? 'max-w-4xl' : 'max-w-2xl'} mx-auto bg-white dark:bg-slate-800 p-3 sm:p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-5 transition-all duration-200`}>
         
         {/* Title Block */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
@@ -474,6 +690,38 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
           <span className="text-[10px] bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold px-2.5 py-1 rounded-md border border-blue-200 dark:border-blue-800 shrink-0">
             Active Stage: Start
           </span>
+        </div>
+
+        {/* Workflow Mode Switcher: Single vs. Bulk Courier */}
+        <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={() => setIsBulkMode(false)}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+              !isBulkMode
+                ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <span>Single Destination Mode</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsBulkMode(true)}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+              isBulkMode
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'text-indigo-600 dark:text-indigo-400 hover:text-indigo-700'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+            <span>⚡ Bulk Courier Form (Air / Rail / Multi-Stop)</span>
+            {bulkDestinations.length > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[10px] font-mono">
+                {bulkDestinations.length}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Inline Animated Success Banner */}
@@ -496,6 +744,43 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
           )}
         </AnimatePresence>
 
+        {isBulkMode ? (
+          <SupervisorBulkCourierForm
+            vehicleNo={vehicleNo}
+            setVehicleNo={setVehicleNo}
+            isVehicleLocked={isVehicleLocked}
+            selectedGateId={selectedGateId}
+            opType={opType}
+            unit={unit}
+            setUnit={setUnit}
+            bayNo={bayNo}
+            setBayNo={setBayNo}
+            transporter={transporter}
+            setTransporter={setTransporter}
+            vType={vType}
+            setVType={setVType}
+            sealNumber={sealNumber}
+            setSealNumber={setSealNumber}
+            entryDate={entryDate}
+            supervisors={supervisors}
+            transporters={transporters}
+            loadLocations={validLoadLocations}
+            unloadLocations={validUnloadLocations}
+            occupiedDocks={occupiedDocks}
+            bulkDestinations={bulkDestinations}
+            setBulkDestinations={setBulkDestinations}
+            masterStartTime={masterStartTime}
+            setMasterStartTime={setMasterStartTime}
+            masterEndTime={masterEndTime}
+            setMasterEndTime={setMasterEndTime}
+            masterOperator={masterOperator}
+            setMasterOperator={setMasterOperator}
+            onBulkSubmit={handleBulkSubmit}
+            onSwitchToSingle={() => setIsBulkMode(false)}
+            pendingGateLogs={pendingGateLogs}
+            handleGateSelect={handleGateSelect}
+          />
+        ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Link Arrived Vehicle from Gate */}
           <div className="bg-blue-50/70 dark:bg-slate-900/90 p-3.5 rounded-xl border border-blue-200 dark:border-slate-700 space-y-2">
@@ -844,6 +1129,7 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
             <CheckCircle2 className="w-4.5 h-4.5 text-emerald-300" /> Save Changes &amp; Start Operation
           </button>
         </form>
+        )}
       </div>
     </div>
   );
