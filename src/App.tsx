@@ -1338,7 +1338,7 @@ export default function App() {
                   className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs rounded-xl px-2.5 py-2 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
                   title="Select Professional Theme"
                 >
-                  <option value="dark">Charcoal & Neon</option>
+                  <option value="dark">Classic Pink & Maroon</option>
                   <option value="light">Crisp SaaS Light</option>
                   <option value="amoled">AMOLED Pitch Black</option>
                   <option value="cream">Soft Cream & Premium</option>
