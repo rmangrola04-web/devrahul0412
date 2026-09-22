@@ -29,13 +29,13 @@
 }
 
 .dark {
-  --bg-main: #080C14;
-  --bg-sidebar: #0D1527;
-  --bg-header: rgba(13, 21, 39, 0.92);
-  --bg-card: rgba(23, 32, 54, 0.78);
-  --bg-elevated: rgba(36, 49, 78, 0.7);
-  --bg-input: rgba(13, 21, 39, 0.9);
-  --bg-input-focus: rgba(23, 32, 54, 0.98);
+  --bg-main: #121212; /* Deep Charcoal Grey for Modern Professional */
+  --bg-sidebar: #0F172A;
+  --bg-header: rgba(18, 18, 18, 0.94);
+  --bg-card: rgba(30, 41, 59, 0.82);
+  --bg-elevated: rgba(51, 65, 85, 0.7);
+  --bg-input: rgba(18, 18, 18, 0.9);
+  --bg-input-focus: rgba(30, 41, 59, 0.98);
   
   --text-main: #F8FAFC;
   --text-muted: #94A3B8;
@@ -44,16 +44,101 @@
   --text-heading: #FFFFFF;
   --text-label: #E2E8F0;
   
-  --border-subtle: rgba(56, 189, 248, 0.18);
-  --border-card: rgba(56, 189, 248, 0.25);
-  --border-sidebar: rgba(56, 189, 248, 0.2);
-  --border-header: rgba(56, 189, 248, 0.22);
-  --border-input: rgba(56, 189, 248, 0.3);
-  --border-focus: #38BDF8;
+  --border-subtle: rgba(20, 184, 166, 0.2); /* Neon Teal / Cyan accents */
+  --border-card: rgba(6, 182, 212, 0.3);
+  --border-sidebar: rgba(20, 184, 166, 0.25);
+  --border-header: rgba(6, 182, 212, 0.25);
+  --border-input: rgba(20, 184, 166, 0.35);
+  --border-focus: #14B8A6;
 
-  /* 4K Cyber 3D Card Shadows with Neon Cyan Specular Glow */
-  --shadow-card: inset 0 1px 0 0 rgba(255, 255, 255, 0.12), 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 18px rgba(14, 165, 233, 0.09);
-  --shadow-card-hover: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 22px 40px rgba(0, 0, 0, 0.65), 0 0 28px rgba(56, 189, 248, 0.22);
+  --shadow-card: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(20, 184, 166, 0.12);
+  --shadow-card-hover: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(6, 182, 212, 0.25);
+}
+
+/* AMOLED Pitch Black & Pastel Theme */
+[data-theme="amoled"] {
+  --bg-main: #000000;
+  --bg-sidebar: #09090B;
+  --bg-header: rgba(0, 0, 0, 0.95);
+  --bg-card: #18181B;
+  --bg-elevated: #27272A;
+  --bg-input: #09090B;
+  --bg-input-focus: #18181B;
+
+  --text-main: #FAFAFA;
+  --text-muted: #A1A1AA;
+  --text-sidebar: #FAFAFA;
+  --text-header: #FAFAFA;
+  --text-heading: #FAFAFA;
+  --text-label: #D4D4D8;
+
+  --border-subtle: rgba(244, 114, 182, 0.25); /* Pastel Pink & Purple accents */
+  --border-card: rgba(192, 132, 252, 0.3);
+  --border-sidebar: rgba(251, 191, 36, 0.25); /* Soft Gold */
+  --border-header: rgba(244, 114, 182, 0.3);
+  --border-input: rgba(192, 132, 252, 0.4);
+  --border-focus: #C084FC;
+
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 15px rgba(244, 114, 182, 0.08);
+  --shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.95), 0 0 25px rgba(192, 132, 252, 0.18);
+}
+
+/* Off-White / Soft Cream & Premium Theme (Light) */
+[data-theme="cream"] {
+  --bg-main: #FDFBF7;
+  --bg-sidebar: #382923;
+  --bg-header: rgba(253, 251, 247, 0.95);
+  --bg-card: #FFFFFF;
+  --bg-elevated: #F5EBE6;
+  --bg-input: #FFFFFF;
+  --bg-input-focus: #FFFFFF;
+
+  --text-main: #2C221E;
+  --text-muted: #786C67;
+  --text-sidebar: #FFFFFF;
+  --text-header: #2C221E;
+  --text-heading: #2C221E;
+  --text-label: #4A3E38;
+
+  --border-subtle: #E6DCD3;
+  --border-card: #DED3C7;
+  --border-sidebar: #4A3E38;
+  --border-header: #E6DCD3;
+  --border-input: #DED3C7;
+  --border-focus: #B48A75;
+
+  --shadow-card: 0 4px 20px rgba(44, 34, 30, 0.05);
+  --shadow-card-hover: 0 10px 25px rgba(44, 34, 30, 0.08);
+}
+
+/* Material DayNight Dynamic System Theme */
+[data-theme="material"] {
+  /* Adapts based on system prefers-color-scheme */
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="material"] {
+    --bg-main: #111318;
+    --bg-sidebar: #1E232D;
+    --bg-header: rgba(17, 19, 24, 0.92);
+    --bg-card: #1A1D26;
+    --bg-elevated: #242833;
+    --bg-input: #111318;
+    --bg-input-focus: #1A1D26;
+
+    --text-main: #E3E2E6;
+    --text-muted: #C4C6D0;
+    --text-sidebar: #FFFFFF;
+    --text-header: #E3E2E6;
+    --text-heading: #E3E2E6;
+    --text-label: #C4C6D0;
+
+    --border-subtle: #44474F;
+    --border-card: #5B5E66;
+    --border-sidebar: #44474F;
+    --border-header: #44474F;
+    --border-input: #5B5E66;
+    --border-focus: #D0BCFF; /* Material You tonal accent */
+  }
 }
 
 /* Base Body Styles with Tech 4K Glow Gradient & Anti-Aliased Typography */
@@ -573,3 +658,78 @@ table tbody tr:hover {
     padding: 0.875rem !important;
   }
 }
+
+/* मोबाइल स्क्रीन के लिए विशेष स्टाइल */
+@media screen and (max-width: 768px) {
+  /* एंट्री डिटेल्स को लिस्ट या कार्ड फॉर्मेट में दिखाना */
+  .entry-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+}
+
+/* 1. पूरे पेज का बैकग्राउंड लाइट स्काई ब्लू करें */
+body, .dashboard-container {
+    background-color: #E0F2FE !important; /* लाइट स्काई ब्लू शेड */
+    color: #000000 !important; /* सभी मुख्य फोंट ब्लैक */
+}
+
+/* 2. कार्ड्स के लिए स्टाइल (प्रॉपर हाइलाइट और बॉर्डर) */
+.card, .widget-box, .panel, .widget-card {
+    background-color: #FFFFFF !important; /* कार्ड का बैकग्राउंड साफ़ सफ़ेद */
+    border: 2px solid #38BDF8 !important; /* स्काई ब्लू हाइलाइटर बॉर्डर */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important; /* हल्का शैडो ताकि कार्ड उभर कर दिखे */
+    border-radius: 10px !important;
+}
+
+/* 3. कार्ड्स के अंदर के टेक्स्ट और लेबल्स को ब्लैक करना */
+.card h1, .card h2, .card h3, .card h4, .card p, .card span, .card label,
+.widget-card h1, .widget-card h2, .widget-card h3, .widget-card h4, .widget-card p, .widget-card span, .widget-card label {
+    color: #000000 !important;
+    font-weight: 650 !important; /* फोंट को थोड़ा बोल्ड करें ताकि साफ दिखे */
+}
+
+/* 4. साइडबार या नेविगेशन मेन्यू (अगर इसे अलग रखना है) */
+.sidebar {
+    background-color: #4A1525 !important; /* आपकी मौजूदा डार्क थीम बरकरार रखने के लिए */
+    color: #FFFFFF !important;
+}
+
+/* 1. सभी डार्क/कलर्ड बैज और स्मॉल बटन के अंदर का टेक्स्ट सफेद (White) और चमकीला करें */
+.badge, .btn, .status-pill, 
+span[class*="bg-"], div[class*="bg-"], 
+button, .tag {
+    color: #FFFFFF !important; /* टेक्स्ट पूरी तरह सफेद ताकि डार्क बैकग्राउंड पर चमके */
+    font-weight: 700 !important; /* फॉन्ट को बोल्ड करें */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* हल्की शैडो ताकि और उभर कर दिखे */
+}
+
+/* 2. विशिष्ट कलर्ड बटन्स/स्टेटस बॉक्स के लिए फॉन्ट कलर फिक्स */
+/* ग्रीन बटन / बैज */
+.bg-green, .badge-success, .done-badge {
+    background-color: #059669 !important; /* थोड़ा ब्राइट ग्रीन */
+    color: #FFFFFF !important;
+}
+
+/* ब्राउन/ऑरेंज/डार्क बैज */
+.bg-amber, .bg-brown, .badge-warning, .active-badge {
+    background-color: #D97706 !important; /* प्रॉपर विजिबल ऑरेंज-براउन */
+    color: #FFFFFF !important;
+}
+
+/* ब्लू बैज */
+.bg-blue, .badge-info, .total-badge {
+    background-color: #2563EB !important; /* ब्राइट ब्लू */
+    color: #FFFFFF !important;
+}
+
+/* 3. कार्ड्स के अंदर के सामान्य लेबल्स और टेक्स्ट को डार्क ब्लैक रखें (जो साफ़ बैकग्राउंड पर हैं) */
+.card p, .card span:not([class*="bg"]), .card label, .card h4,
+.widget-card p, .widget-card span:not([class*="bg"]), .widget-card label, .widget-card h4 {
+    color: #111827 !important; /* डार्क ब्लैक/ग्रे ताकि लाइट बैकग्राउंड पर शार्प दिखे */
+    font-weight: 600 !important;
+}
+
+

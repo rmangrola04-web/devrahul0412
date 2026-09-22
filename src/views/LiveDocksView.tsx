@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Layers, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LoadUnloadEntry } from '../types';
@@ -76,6 +76,43 @@ export const LiveDocksView: React.FC<LiveDocksViewProps> = ({ loadEntries, onUpd
   const ahplDocks = ['Dock 1', 'Dock 2', 'Dock 3', 'Dock 4'];
   const commonDocks = ['Dock 5', 'Dock 6'];
   const ailDocks = ['Dock 7', 'Dock 8', 'Dock 9'];
+  const allDocks = ['Dock 1', 'Dock 2', 'Dock 3', 'Dock 4', 'Dock 5', 'Dock 6', 'Dock 7', 'Dock 8', 'Dock 9'];
+
+  const [maintenanceBays, setMaintenanceBays] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('warehouse_maintenance_bays');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const toggleMaintenance = (dockName: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const updated = maintenanceBays.includes(dockName)
+      ? maintenanceBays.filter(b => b !== dockName)
+      : [...maintenanceBays, dockName];
+    setMaintenanceBays(updated);
+    try {
+      localStorage.setItem('warehouse_maintenance_bays', JSON.stringify(updated));
+    } catch {}
+  };
+
+  const occupancyStats = useMemo(() => {
+    let occupied = 0;
+    let empty = 0;
+    let maintenance = 0;
+    allDocks.forEach(dock => {
+      if (maintenanceBays.includes(dock)) {
+        maintenance++;
+      } else if (getActivesForDock(dock, loadEntries).length > 0) {
+        occupied++;
+      } else {
+        empty++;
+      }
+    });
+    return { occupied, empty, maintenance, total: allDocks.length };
+  }, [loadEntries, maintenanceBays]);
 
   const handleStart = (entry: LoadUnloadEntry) => {
     onUpdateOperation(entry);
@@ -254,6 +291,92 @@ export const LiveDocksView: React.FC<LiveDocksViewProps> = ({ loadEntries, onUpd
 
   return (
     <section className="space-y-6">
+      {/* Simplified Visual Dock Occupancy Grid */}
+      <div className="bg-white dark:bg-slate-800 p-4 lg:p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 dark:border-slate-700/60 pb-3">
+          <div>
+            <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Dock Bay Occupancy Status Grid
+            </h2>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Live status overview of all warehouse bays (Click card to scroll or toggle 🛠️ maintenance)
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 rounded-lg text-[10px] font-bold">
+              Empty: {occupancyStats.empty}
+            </span>
+            <span className="px-2.5 py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-blue-800 dark:text-blue-300 rounded-lg text-[10px] font-bold">
+              Occupied: {occupancyStats.occupied}
+            </span>
+            <span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-300 rounded-lg text-[10px] font-bold">
+              Maintenance: {occupancyStats.maintenance}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2.5">
+          {allDocks.map(dock => {
+            const actives = getActivesForDock(dock, loadEntries);
+            const isMaint = maintenanceBays.includes(dock);
+            const isOcc = actives.length > 0;
+            const occupant = isOcc ? actives[0] : null;
+
+            let bgClass = "bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50 text-emerald-900 dark:text-emerald-200";
+            let statusText = "Empty";
+            let dotBg = "bg-emerald-500";
+
+            if (isMaint) {
+              bgClass = "bg-rose-50/80 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/50 text-rose-900 dark:text-rose-200";
+              statusText = "Maintenance";
+              dotBg = "bg-rose-500";
+            } else if (isOcc) {
+              bgClass = "bg-blue-50/80 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800/50 text-blue-900 dark:text-blue-200";
+              statusText = "Occupied";
+              dotBg = "bg-blue-500 animate-pulse";
+            }
+
+            return (
+              <div 
+                key={dock}
+                onClick={() => {
+                  const el = document.getElementById(`dock-card-${dock.replace(/\s+/g, '-').toLowerCase()}`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className={`p-2.5 rounded-xl border ${bgClass} shadow-xs transition hover:scale-[1.02] cursor-pointer flex flex-col justify-between items-center text-center space-y-1 relative group`}
+              >
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-[10px] font-black uppercase tracking-wider">{dock}</span>
+                  <button
+                    type="button"
+                    title="Toggle Maintenance"
+                    onClick={(e) => toggleMaintenance(dock, e)}
+                    className="text-[9px] px-1 py-0.5 rounded bg-white/70 dark:bg-slate-800/70 text-slate-500 hover:text-rose-600 transition font-bold"
+                  >
+                    🛠️
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1 my-1">
+                  <span className={`w-2 h-2 rounded-full ${dotBg}`} />
+                  <span className="text-[10px] font-extrabold">{statusText}</span>
+                </div>
+
+                {occupant ? (
+                  <div className="text-[9px] font-mono font-bold bg-white/80 dark:bg-slate-900/70 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 truncate w-full">
+                    {occupant.vehicleNo}
+                  </div>
+                ) : (
+                  <div className="text-[8px] text-slate-400 dark:text-slate-500 font-medium">
+                    {isMaint ? "Service" : "Available"}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Search Bar */}
       <div className="flex items-center gap-2 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-all focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400">
         <Search className="w-5 h-5 text-slate-400" />

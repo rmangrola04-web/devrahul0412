@@ -94,10 +94,10 @@ import { MasterLogsView } from './views/MasterLogsView';
 
 export default function App() {
   // Theme state (robust persistence)
-  const [theme, setTheme] = useState<'dark' | 'light' | 'light-brown' | 'sky-blue' | 'glass'>(() => {
+  const [theme, setTheme] = useState<'dark' | 'light' | 'amoled' | 'cream' | 'material' | 'light-brown' | 'sky-blue' | 'glass'>(() => {
     try {
       const saved = localStorage.getItem('wms_theme') || localStorage.getItem('themePrefs') as any;
-      if (['dark', 'light', 'light-brown', 'sky-blue', 'glass'].includes(saved)) return saved;
+      if (['dark', 'light', 'amoled', 'cream', 'material', 'light-brown', 'sky-blue', 'glass'].includes(saved)) return saved;
     } catch(e) {}
     return 'dark';
   });
@@ -182,7 +182,17 @@ export default function App() {
     } else if (theme === 'light') {
       htmlEl.classList.add('light');
       bodyEl.classList.add('light');
-    } else {
+    } else if (theme === 'amoled') {
+      htmlEl.setAttribute('data-theme', 'amoled');
+      htmlEl.classList.add('dark');
+      bodyEl.classList.add('dark');
+    } else if (theme === 'cream') {
+      htmlEl.setAttribute('data-theme', 'cream');
+      htmlEl.classList.add('light');
+      bodyEl.classList.add('light');
+    } else if (theme === 'material') {
+      htmlEl.setAttribute('data-theme', 'material');
+    } else if (theme === 'light-brown' || theme === 'glass') {
       // Custom themes using data-theme attribute
       htmlEl.setAttribute('data-theme', theme);
       if (theme === 'glass' || theme === 'light-brown') {
@@ -1320,24 +1330,39 @@ export default function App() {
                 </button>
               )}
 
-              {/* Theme Toggle Button */}
-              <button
-                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                className="flex items-center justify-center min-h-[44px] min-w-[44px] gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-full px-3.5 py-2 shadow-2xs transition touch-manipulation cursor-pointer"
-                title="Toggle Dark/Light Mode"
-              >
-                {theme === 'dark' ? (
-                  <>
-                    <Sun className="w-4 h-4 text-amber-500" />
-                    <span className="text-xs font-bold text-slate-200 hidden sm:inline">Light Mode</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon className="w-4 h-4 text-blue-600" />
-                    <span className="text-xs font-bold text-slate-700 hidden sm:inline">Dark Mode</span>
-                  </>
-                )}
-              </button>
+              {/* Theme Toggle & Selector */}
+              <div className="flex items-center gap-1">
+                <select
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value as any)}
+                  className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs rounded-xl px-2.5 py-2 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                  title="Select Professional Theme"
+                >
+                  <option value="dark">Charcoal & Neon</option>
+                  <option value="light">Crisp SaaS Light</option>
+                  <option value="amoled">AMOLED Pitch Black</option>
+                  <option value="cream">Soft Cream & Premium</option>
+                  <option value="material">Material DayNight</option>
+                </select>
+
+                <button
+                  onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                  className="flex items-center justify-center min-h-[44px] min-w-[44px] gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 rounded-full px-3.5 py-2 shadow-2xs transition touch-manipulation cursor-pointer"
+                  title="Toggle Dark/Light Mode"
+                >
+                  {theme === 'dark' ? (
+                    <>
+                      <Sun className="w-4 h-4 text-amber-500" />
+                      <span className="text-xs font-bold text-slate-200 hidden sm:inline">Light</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-4 h-4 text-blue-600" />
+                      <span className="text-xs font-bold text-slate-700 hidden sm:inline">Dark</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
               {/* Firestore Real-Time Status Indicator */}
               <div
