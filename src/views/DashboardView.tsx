@@ -580,7 +580,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
           
           {/* Card 1: CONSOLIDATED LOADING VEHICLES CARD (Active Loading) */}
           <div className="widget-card bg-amber-50/80 dark:bg-[#242c3d] rounded-2xl border border-amber-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-5 space-y-3.5 max-w-full overflow-hidden">
@@ -674,101 +674,167 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Card 2: COMPACT RAIL & AIR DISPATCH STATUS CARD (Strictly Between Loading & Unloading) */}
-          <div className="widget-card bg-indigo-50/80 dark:bg-[#242c3d] rounded-2xl border border-indigo-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-2.5 sm:p-3.5 space-y-2.5 max-w-full overflow-hidden">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-indigo-950 dark:text-indigo-300 pb-2 border-b border-indigo-200/80 dark:border-[#3e4859] min-w-0">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <div className="p-1.5 rounded-lg bg-indigo-600 text-white shadow-xs shrink-0 flex items-center justify-center">
-                  <Plane className="w-4 h-4" />
+          {/* Card 2: RAIL DISPATCH CARD (Synchronized AIL & AHPL with side-by-side Co./Cases and Lo./Cases & bolded Total Rail) */}
+          <div className="widget-card bg-indigo-50/80 dark:bg-[#242c3d] rounded-2xl border border-indigo-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-4 space-y-3 max-w-full overflow-hidden">
+            <div className="flex justify-between items-center gap-2 text-indigo-950 dark:text-indigo-300 pb-2.5 border-b border-indigo-200/80 dark:border-[#3e4859] min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="p-2 rounded-xl bg-indigo-600 text-white shadow-xs shrink-0 flex items-center justify-center">
+                  <Train className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-indigo-950 dark:text-indigo-100 truncate">
-                      Rail &amp; Air Dispatch
+                      Rail Dispatch
                     </h3>
                     <span className="px-1.5 py-0.5 bg-indigo-200/80 dark:bg-indigo-900/60 text-indigo-950 dark:text-indigo-200 rounded text-[9px] font-black uppercase tracking-wider shrink-0">
-                      Bifurcation
+                      Spark Time
                     </span>
                   </div>
-                  <p className="text-[10px] text-indigo-800/90 dark:text-indigo-400 font-medium truncate">
-                    Spark &bull; Star &bull; SD Cargo
+                  <p className="text-[10px] text-indigo-800/90 dark:text-indigo-400 font-medium truncate mt-0.5">
+                    Synchronized AIL &amp; AHPL
                   </p>
                 </div>
               </div>
 
-              <div className="w-full sm:w-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center text-left sm:text-right bg-indigo-100/90 dark:bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-300/80 dark:border-indigo-800/70 shrink-0 max-w-full">
-                <div className="text-base sm:text-lg font-black text-indigo-950 dark:text-indigo-100 leading-none font-mono">
-                  {railAirDispatchData.totalCases.toLocaleString()} <span className="text-[10px] font-bold font-sans">Cases</span>
+              <div className="bg-indigo-100/90 dark:bg-indigo-950/80 px-2.5 py-1.5 rounded-xl border border-indigo-300/80 dark:border-indigo-800/70 text-right shrink-0">
+                <div className="text-sm sm:text-base font-black text-indigo-950 dark:text-indigo-100 leading-none font-mono">
+                  {railMetrics.totalCases.toLocaleString()} <span className="text-[10px] font-bold font-sans">Cs</span>
                 </div>
-                <div className="text-[10px] font-extrabold text-indigo-800 dark:text-indigo-300 whitespace-nowrap">
-                  {railAirDispatchData.totalLocations} Locations
-                </div>
-              </div>
-            </div>
-
-            {/* Mode Bifurcation: Rail vs Air Row */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 px-2 py-1.5 rounded-lg border border-indigo-200/80 dark:border-slate-700/80 flex justify-between items-center min-w-0">
-                <div className="flex items-center gap-1 min-w-0">
-                  <Train className="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                  <span className="text-[10px] font-extrabold uppercase text-indigo-900/90 dark:text-slate-300 tracking-wider truncate">Rail</span>
-                </div>
-                <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[11px] truncate ml-1">Spark Time</span>
-              </div>
-              <div className="bg-white/80 dark:bg-[#2d3748]/80 px-2 py-1.5 rounded-lg border border-indigo-200/80 dark:border-slate-700/80 flex justify-between items-center min-w-0">
-                <div className="flex items-center gap-1 min-w-0">
-                  <Plane className="w-3 h-3 text-violet-600 dark:text-violet-400 shrink-0" />
-                  <span className="text-[10px] font-extrabold uppercase text-violet-900/90 dark:text-slate-300 tracking-wider truncate">Air</span>
-                </div>
-                <span className="font-mono font-bold text-violet-600 dark:text-violet-400 text-[11px] truncate ml-1">Star &bull; SD</span>
-              </div>
-            </div>
-
-            {/* Division Breakdown: AIL and AHPL inside Rail & Air Card */}
-            <div className="grid grid-cols-2 gap-2">
-              {/* AIL Division Box */}
-              <div className="bg-white/50 dark:bg-slate-800/40 px-2 py-1.5 rounded-lg border border-indigo-200/80 dark:border-slate-700/80 space-y-1 min-w-0">
-                <div className="flex justify-between items-center border-b border-indigo-200/60 dark:border-slate-700/60 pb-1 min-w-0 gap-1">
-                  <span className="font-black uppercase text-[10px] text-indigo-950 dark:text-indigo-200 truncate">
-                    AIL Div
-                  </span>
-                  <span className="text-[9px] font-black text-emerald-800 dark:text-emerald-300 font-mono bg-emerald-100 dark:bg-emerald-950/70 px-1 rounded shrink-0">
-                    4 locs
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-[11px] min-w-0 gap-1 font-mono font-black text-indigo-950 dark:text-indigo-100">
-                  <span>Cases:</span>
-                  <span>{railAirDispatchData.ailCases.toLocaleString()}</span>
-                </div>
-              </div>
-
-              {/* AHPL Division Box */}
-              <div className="bg-white/50 dark:bg-slate-800/40 px-2 py-1.5 rounded-lg border border-indigo-200/80 dark:border-slate-700/80 space-y-1 min-w-0">
-                <div className="flex justify-between items-center border-b border-indigo-200/60 dark:border-slate-700/60 pb-1 min-w-0 gap-1">
-                  <span className="font-black uppercase text-[10px] text-indigo-950 dark:text-indigo-200 truncate">
-                    AHPL Div
-                  </span>
-                  <span className="text-[9px] font-black text-blue-800 dark:text-blue-300 font-mono bg-blue-100 dark:bg-blue-950/70 px-1 rounded shrink-0">
-                    3 locs
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-[11px] min-w-0 gap-1 font-mono font-black text-indigo-950 dark:text-indigo-100">
-                  <span>Cases:</span>
-                  <span>{railAirDispatchData.ahplCases.toLocaleString()}</span>
+                <div className="text-[10px] font-extrabold text-indigo-800 dark:text-indigo-300 mt-0.5">
+                  {railMetrics.totalLocations} Locs
                 </div>
               </div>
             </div>
 
-            {/* Bottom visual separation note */}
-            <div className="flex items-center justify-between gap-1 pt-1 border-t border-indigo-200/70 dark:border-[#3e4859] text-[9.5px] text-indigo-900/80 dark:text-indigo-300 font-semibold">
-              <span className="truncate">Excluded Docks: Spark &bull; Star &bull; SD</span>
-              <span className="font-mono font-bold text-indigo-950 dark:text-indigo-200 shrink-0">
-                {railAirDispatchData.totalLocations} Locs / {railAirDispatchData.totalCases} Cs
+            {/* Responsive grid segmenting Co./Cases and Lo./Cases side-by-side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              {/* Co./Cases Column */}
+              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 rounded-xl border border-indigo-200/80 dark:border-slate-700/80 space-y-1.5 flex flex-col justify-between">
+                <div className="text-[10px] font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200 border-b border-indigo-100 dark:border-slate-700 pb-1 flex justify-between items-center">
+                  <span>Co./Cases</span>
+                  <span className="font-mono text-emerald-700 dark:text-emerald-400">AIL / AHPL</span>
+                </div>
+                <div className="space-y-1 pt-1">
+                  <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
+                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL Co:</span>
+                    <span className="font-mono font-black text-emerald-950 dark:text-emerald-100 text-xs">{railMetrics.ail.cases.toLocaleString()} Cs</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded-lg border border-blue-200 dark:border-blue-900/60">
+                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL Co:</span>
+                    <span className="font-mono font-black text-blue-950 dark:text-blue-100 text-xs">{railMetrics.ahpl.cases.toLocaleString()} Cs</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lo./Cases Column */}
+              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 rounded-xl border border-indigo-200/80 dark:border-slate-700/80 space-y-1.5 flex flex-col justify-between">
+                <div className="text-[10px] font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200 border-b border-indigo-100 dark:border-slate-700 pb-1 flex justify-between items-center">
+                  <span>Lo./Cases</span>
+                  <span className="font-mono text-indigo-700 dark:text-indigo-400">Locations</span>
+                </div>
+                <div className="space-y-1 pt-1">
+                  <div className="flex justify-between items-center bg-emerald-50/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg border border-emerald-200/60 dark:border-slate-700">
+                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL Lo:</span>
+                    <span className="font-mono font-black text-indigo-950 dark:text-indigo-100 text-xs">{railMetrics.ail.locations} Locs</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-blue-50/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg border border-blue-200/60 dark:border-slate-700">
+                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL Lo:</span>
+                    <span className="font-mono font-black text-indigo-950 dark:text-indigo-100 text-xs">{railMetrics.ahpl.locations} Locs</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bolded Combined Total for Rail */}
+            <div className="flex items-center justify-between pt-2 border-t border-indigo-200/80 dark:border-[#3e4859] text-[10px] sm:text-xs font-bold text-indigo-950 dark:text-indigo-200">
+              <span className="uppercase tracking-wider font-extrabold text-indigo-900 dark:text-indigo-300">Total Rail:</span>
+              <span className="font-mono font-black text-indigo-900 dark:text-indigo-100 text-xs sm:text-sm bg-indigo-100/80 dark:bg-indigo-950 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800">
+                {railMetrics.totalCases.toLocaleString()} Cases ({railMetrics.totalLocations} Locs)
               </span>
             </div>
           </div>
 
-          {/* Card 3: CONSOLIDATED UNLOADING VEHICLES CARD (Active Unloading) */}
+          {/* Card 3: AIR DISPATCH CARD (Synchronized AIL & AHPL with side-by-side Co./Cases and Lo./Cases & bolded Total Air) */}
+          <div className="widget-card bg-violet-50/80 dark:bg-[#242c3d] rounded-2xl border border-violet-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-4 space-y-3 max-w-full overflow-hidden">
+            <div className="flex justify-between items-center gap-2 text-violet-950 dark:text-violet-300 pb-2.5 border-b border-violet-200/80 dark:border-[#3e4859] min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="p-2 rounded-xl bg-violet-600 text-white shadow-xs shrink-0 flex items-center justify-center">
+                  <Plane className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-violet-950 dark:text-violet-100 truncate">
+                      Air Dispatch
+                    </h3>
+                    <span className="px-1.5 py-0.5 bg-violet-200/80 dark:bg-violet-900/60 text-violet-950 dark:text-violet-200 rounded text-[9px] font-black uppercase tracking-wider shrink-0">
+                      Star &amp; SD
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-violet-800/90 dark:text-violet-400 font-medium truncate mt-0.5">
+                    Synchronized AIL &amp; AHPL
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-violet-100/90 dark:bg-violet-950/80 px-2.5 py-1.5 rounded-xl border border-violet-300/80 dark:border-violet-800/70 text-right shrink-0">
+                <div className="text-sm sm:text-base font-black text-violet-950 dark:text-violet-100 leading-none font-mono">
+                  {airMetrics.totalCases.toLocaleString()} <span className="text-[10px] font-bold font-sans">Cs</span>
+                </div>
+                <div className="text-[10px] font-extrabold text-violet-800 dark:text-violet-300 mt-0.5">
+                  {airMetrics.totalLocations} Locs
+                </div>
+              </div>
+            </div>
+
+            {/* Responsive grid segmenting Co./Cases and Lo./Cases side-by-side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              {/* Co./Cases Column */}
+              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 rounded-xl border border-violet-200/80 dark:border-slate-700/80 space-y-1.5 flex flex-col justify-between">
+                <div className="text-[10px] font-black uppercase tracking-wider text-violet-900 dark:text-violet-200 border-b border-violet-100 dark:border-slate-700 pb-1 flex justify-between items-center">
+                  <span>Co./Cases</span>
+                  <span className="font-mono text-emerald-700 dark:text-emerald-400">AIL / AHPL</span>
+                </div>
+                <div className="space-y-1 pt-1">
+                  <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
+                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL Co:</span>
+                    <span className="font-mono font-black text-emerald-950 dark:text-emerald-100 text-xs">{airMetrics.ail.cases.toLocaleString()} Cs</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded-lg border border-blue-200 dark:border-blue-900/60">
+                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL Co:</span>
+                    <span className="font-mono font-black text-blue-950 dark:text-blue-100 text-xs">{airMetrics.ahpl.cases.toLocaleString()} Cs</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lo./Cases Column */}
+              <div className="bg-white/80 dark:bg-[#2d3748]/80 p-2.5 rounded-xl border border-violet-200/80 dark:border-slate-700/80 space-y-1.5 flex flex-col justify-between">
+                <div className="text-[10px] font-black uppercase tracking-wider text-violet-900 dark:text-violet-200 border-b border-violet-100 dark:border-slate-700 pb-1 flex justify-between items-center">
+                  <span>Lo./Cases</span>
+                  <span className="font-mono text-violet-700 dark:text-violet-400">Locations</span>
+                </div>
+                <div className="space-y-1 pt-1">
+                  <div className="flex justify-between items-center bg-emerald-50/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg border border-emerald-200/60 dark:border-slate-700">
+                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">AIL Lo:</span>
+                    <span className="font-mono font-black text-violet-950 dark:text-violet-100 text-xs">{airMetrics.ail.locations} Locs</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-blue-50/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg border border-blue-200/60 dark:border-slate-700">
+                    <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300">AHPL Lo:</span>
+                    <span className="font-mono font-black text-violet-950 dark:text-violet-100 text-xs">{airMetrics.ahpl.locations} Locs</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bolded Combined Total for Air */}
+            <div className="flex items-center justify-between pt-2 border-t border-violet-200/80 dark:border-[#3e4859] text-[10px] sm:text-xs font-bold text-violet-950 dark:text-violet-200">
+              <span className="uppercase tracking-wider font-extrabold text-violet-900 dark:text-violet-300">Total Air:</span>
+              <span className="font-mono font-black text-violet-900 dark:text-violet-100 text-xs sm:text-sm bg-violet-100/80 dark:bg-violet-950 px-2 py-0.5 rounded-md border border-violet-200 dark:border-violet-800">
+                {airMetrics.totalCases.toLocaleString()} Cases ({airMetrics.totalLocations} Locs)
+              </span>
+            </div>
+          </div>
+
+          {/* Card 4: CONSOLIDATED UNLOADING VEHICLES CARD (Active Unloading) */}
           <div className="widget-card bg-blue-50/80 dark:bg-[#242c3d] rounded-2xl border border-blue-300/90 dark:border-[#3e4859] shadow-sm transition hover:shadow-md flex flex-col justify-between h-full p-3 sm:p-5 space-y-3.5 max-w-full overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-blue-950 dark:text-blue-300 pb-3 border-b border-blue-200/80 dark:border-[#3e4859] min-w-0">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
