@@ -22,7 +22,10 @@ import {
   Train,
   FileSpreadsheet,
   Target,
-  X
+  X,
+  TrendingUp,
+  TrendingDown,
+  Minus
 } from 'lucide-react';
 import { PlanEntry, LoadUnloadEntry, SecurityGateEntry } from '../types';
 import { DashboardWidget } from '../components/DashboardWidget';
@@ -362,14 +365,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     const percentage = target > 0 ? Math.round((completed / target) * 100) : 0;
     const ringPercentage = Math.min(100, Math.max(0, percentage));
 
+    const currDateObj = new Date(currentNormalized + 'T00:00:00');
+    currDateObj.setDate(currDateObj.getDate() - 1);
+    const prevDayStr = currDateObj.toISOString().split('T')[0];
+    const prevDayTotal = getLoadingCasesFromRawDb(prevDayStr);
+    const diff = completed - prevDayTotal;
+    const percentChange = prevDayTotal > 0 ? Math.round(Math.abs(diff / prevDayTotal) * 100) : (completed > 0 ? 100 : 0);
+    const trend: 'up' | 'down' | 'flat' = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
+
     return {
       currentDateStr: currentNormalized,
-      prevDayStr: currentNormalized,
+      prevDayStr,
       targetLoadingCases: target,
       completedLoadingCases: completed,
       remaining,
       percentage,
       ringPercentage,
+      prevDayTotal,
+      diff,
+      percentChange,
+      trend,
       isPrevDayBaseline: false
     };
   }, [activeSelDate, loadEntries, planEntries, archivedPlanEntries, totalLoadedCases]);
@@ -611,6 +626,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="text-[10px] font-extrabold text-amber-800 dark:text-amber-300 sm:mt-0.5 whitespace-nowrap">
                   {(totalLoadedCases || 0).toLocaleString()} Total C
                 </div>
+              </div>
+            </div>
+
+            {/* Performance Indicator: Comparison vs Previous Day */}
+            <div className="bg-white/70 dark:bg-[#252f3f]/90 px-3 py-2 rounded-xl border border-amber-200/80 dark:border-slate-700 flex items-center justify-between text-xs">
+              <span className="text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-300 tracking-wider">
+                vs Yesterday ({targetLoadingCasesInfo.prevDayTotal.toLocaleString()} C):
+              </span>
+              <div className={`flex items-center gap-1 font-mono font-bold text-xs px-2 py-0.5 rounded-lg ${
+                targetLoadingCasesInfo.trend === 'up' 
+                  ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800' 
+                  : targetLoadingCasesInfo.trend === 'down'
+                  ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-800'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+              }`}>
+                {targetLoadingCasesInfo.trend === 'up' && <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                {targetLoadingCasesInfo.trend === 'down' && <TrendingDown className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />}
+                {targetLoadingCasesInfo.trend === 'flat' && <Minus className="w-3.5 h-3.5 text-slate-500" />}
+                <span>
+                  {targetLoadingCasesInfo.diff > 0 ? `+${targetLoadingCasesInfo.diff.toLocaleString()} C (${targetLoadingCasesInfo.percentChange}%)` : targetLoadingCasesInfo.diff < 0 ? `${targetLoadingCasesInfo.diff.toLocaleString()} C (${targetLoadingCasesInfo.percentChange}%)` : '0 C (0%)'}
+                </span>
               </div>
             </div>
 

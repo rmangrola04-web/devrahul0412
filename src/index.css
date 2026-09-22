@@ -765,39 +765,84 @@ table tbody tr:hover {
   }
 }
 
-/* 1. मुख्य बैकग्राउंड (अल्ट्रा डार्क) */
+/* ==========================
+   वार्म डार्क मोड थीम (Warm Dark Mode)
+   ========================== */
+
+/* 1. मुख्य बैकग्राउंड - रिच वार्म ग्रे (#1A1D21) */
 body, .app-container {
-    background-color: #0A0F16 !important; /* Deep Charcoal Black */
-    color: #FFFFFF !important; /* सभी टेक्स्ट डिफ़ॉल्ट सफ़ेद */
+    background-color: #1A1D21 !important;
+    color: #FFFFFF !important; /* सभी टेक्स्ट डिफ़ॉल्ट शुद्ध सफ़ेद (#FFFFFF) */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* 2. कार्ड्स (मैट ब्लैक और हाई कंट्रास्ट बॉर्डर) */
-.card, .widget-panel, .widget-card {
-    background-color: #1A202C !important; /* Matte Black Card Background */
-    border: 1px solid #38BDF8 !important; /* Bright Neon Blue Highlighter Border */
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+/* 2. कार्ड्स - थोड़ा हल्का वार्म ग्रे (#25282C) और स्पष्ट बॉर्डर */
+.card, .widget-card {
+    background-color: #25282C !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    margin-bottom: 16px;
+    padding: 20px !important;
 }
 
-/* 3. कार्ड के भीतर के टेक्स्ट और लेबल्स (पूरी तरह सफ़ेद और बोल्ड) */
-.card h3, .card p, .card span, .card label, .metric-value, .widget-card h3, .widget-card h4, .widget-card p, .widget-card span, .widget-card label {
-    color: #FFFFFF !important; /* Pure White Font */
-    font-weight: 600 !important;
-}
-
-/* 4. स्टेटस/हाइलाइटर के रंग (ब्राइट और अलग) */
-.status-blue { color: #38BDF8 !important; } /* Bright Neon Blue */
-.status-green { color: #4ADE80 !important; } /*Bright Neon Green */
-
-/* 5. नेविगेशन/साइडबार को साफ़ रखना */
-.sidebar {
-    background-color: #111827 !important; /* डार्क नेविगेशन */
-    border-right: 1px solid #374151;
-}
-.nav-link { color: #D1D5DB; }
-.nav-link.active {
-    background-color: #374151 !important;
+/* 3. कार्ड के भीतर का टेक्स्ट - हमेशा शुद्ध सफ़ेद */
+.card h3, .card p, .card span, .card label, .metric-value {
     color: #FFFFFF !important;
+    font-weight: 500 !important;
 }
+
+/* 4. कलर पैलेट रिफ्रेश (वार्म एकेंट्स) */
+.status-badge-blue, .accent-sky-blue {
+    background-color: rgba(56, 189, 248, 0.15) !important;
+    color: #38BDF8 !important; /* वार्म स्काई ब्लू */
+    border: 1px solid #38BDF8 !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+}
+
+.status-badge-amber, .accent-golden-amber {
+    background-color: rgba(251, 191, 36, 0.15) !important;
+    color: #FBBF24 !important; /* रिच वार्म गोल्डन एम्बर */
+    border: 1px solid #FBBF24 !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+}
+
+.status-badge-green, .accent-mint-green {
+    background-color: rgba(52, 211, 153, 0.15) !important;
+    color: #34D399 !important; /* फ्रेश वार्म मिंट ग्रीन */
+    border: 1px solid #34D399 !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+}
+
+.status-badge-orange { 
+    background-color: rgba(251, 146, 60, 0.15) !important; 
+    color: #FB923C !important; 
+    border: 1px solid #FB923C !important; 
+}
+
+/* 5. नेविगेशन/साइडबार - रिच वार्म ग्रे पैनल */
+.sidebar {
+    background-color: #25282C !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.sidebar .nav-link {
+    color: #E2E8F0 !important;
+    border-radius: 8px !important;
+    margin: 4px 8px !important;
+}
+.sidebar .nav-link.active {
+    background-color: #38BDF8 !important; /* वार्म स्काई ब्लू */
+    color: #1A1D21 !important;
+    font-weight: bold !important;
+}
+
+/* 6. फोर्स लाइट टेक्स्ट */
+.force-light-text { color: #000000 !important; }
 
 

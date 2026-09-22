@@ -103,7 +103,11 @@ export const subscribeToOperations = (
       callback(list);
     },
     (err) => {
-      console.error('Firestore onSnapshot error for subscribeToOperations:', err);
+      if (err?.code === 'unavailable') {
+        console.warn('Firestore Operations offline; serving from local cache.');
+      } else {
+        console.error('Firestore onSnapshot error for subscribeToOperations:', err);
+      }
       if (onError) onError(err);
     }
   );
@@ -125,7 +129,11 @@ export const subscribeToSecurityLogs = (
       callback(list);
     },
     (err) => {
-      console.error('Firestore onSnapshot error for subscribeToSecurityLogs:', err);
+      if (err?.code === 'unavailable') {
+        console.warn('Firestore Security Logs offline; serving from local cache.');
+      } else {
+        console.error('Firestore onSnapshot error for subscribeToSecurityLogs:', err);
+      }
       if (onError) onError(err);
     }
   );
@@ -175,7 +183,11 @@ export const subscribeToPlanEntries = (
       callback(list);
     },
     (err) => {
-      console.error('Firestore onSnapshot error for subscribeToPlanEntries:', err);
+      if (err?.code === 'unavailable') {
+        console.warn('Firestore Plan Entries offline; serving from local cache.');
+      } else {
+        console.error('Firestore onSnapshot error for subscribeToPlanEntries:', err);
+      }
       if (onError) onError(err);
     }
   );
@@ -203,7 +215,11 @@ export const subscribeToTrackingRecords = (
       callback(list);
     },
     (err) => {
-      console.error('Firestore onSnapshot error for subscribeToTrackingRecords:', err);
+      if (err?.code === 'unavailable') {
+        console.warn('Firestore Tracking Records offline; serving from local cache.');
+      } else {
+        console.error('Firestore onSnapshot error for subscribeToTrackingRecords:', err);
+      }
       if (onError) onError(err);
     }
   );
@@ -225,7 +241,11 @@ export const subscribeToUsers = (
       callback(list);
     },
     (err) => {
-      console.error('Firestore Users onSnapshot error:', err);
+      if (err?.code === 'unavailable') {
+        console.warn('Firestore Users offline; serving from local cache.');
+      } else {
+        console.error('Firestore Users onSnapshot error:', err);
+      }
       if (onError) onError(err);
     }
   );
@@ -254,10 +274,16 @@ export const subscribeToMasterList = (
       // Sort by original inserted order
       docsData.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       const list = docsData.map((d) => d.name);
-      callback(list);
+      if (list.length > 0) {
+        callback(list);
+      }
     },
     (err) => {
-      console.error(`Firestore ${collectionName} onSnapshot error:`, err);
+      if (err?.code === 'unavailable') {
+        console.warn(`Firestore ${collectionName} offline; using local cache.`);
+      } else {
+        console.error(`Firestore ${collectionName} onSnapshot error:`, err);
+      }
       if (onError) onError(err);
     }
   );

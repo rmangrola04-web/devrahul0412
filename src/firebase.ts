@@ -1,6 +1,8 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import {
   initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   collection,
   doc,
   setDoc,
@@ -9,7 +11,8 @@ import {
   deleteDoc,
   onSnapshot,
   getDocs,
-  query,  where,
+  query,
+  where,
   orderBy,
   writeBatch
 } from 'firebase/firestore';
@@ -26,7 +29,17 @@ export const firebaseConfig = {
 
 // Initialize Firebase App singleton
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const db = initializeFirestore(app, {});
+
+// Use experimentalForceLongPolling to avoid WebChannel streaming failures in proxies/containers,
+// and enable persistentLocalCache for smooth offline operation.
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+  ignoreUndefinedProperties: true,
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
+
 export const auth = getAuth(app);
 
 export {
