@@ -108,6 +108,17 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
   const [masterEndTime, setMasterEndTime] = useState<string>('');
   const [masterOperator, setMasterOperator] = useState<string>(() => supervisors[0] || 'Rahul Mangrola');
 
+  // Restricted strictly to Rail & Air / Courier transport modes
+  const isRailOrAir = useMemo(() => {
+    return isCourierTransporter(transporter, vType);
+  }, [transporter, vType]);
+
+  React.useEffect(() => {
+    if (!isRailOrAir && isBulkMode) {
+      setIsBulkMode(false);
+    }
+  }, [isRailOrAir, isBulkMode]);
+
   // Pure logic: Filter out dummy/test/temp locations from location master list
   const validLoadLocations = useMemo(() => {
     return filterValidLocations(loadLocations, 'LOADING') as string[];
@@ -692,37 +703,39 @@ export const LoadUnloadView: React.FC<LoadUnloadViewProps> = ({
           </span>
         </div>
 
-        {/* Workflow Mode Switcher: Single vs. Bulk Courier */}
-        <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-          <button
-            type="button"
-            onClick={() => setIsBulkMode(false)}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              !isBulkMode
-                ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-          >
-            <span>Single Destination Mode</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsBulkMode(true)}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              isBulkMode
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-indigo-600 dark:text-indigo-400 hover:text-indigo-700'
-            }`}
-          >
-            <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
-            <span>⚡ Bulk Courier Form (Air / Rail / Multi-Stop)</span>
-            {bulkDestinations.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[10px] font-mono">
-                {bulkDestinations.length}
-              </span>
-            )}
-          </button>
-        </div>
+        {/* Workflow Mode Switcher: Single vs. Bulk Courier (Restricted to Rail & Air / Courier only) */}
+        {isRailOrAir && (
+          <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsBulkMode(false)}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                !isBulkMode
+                  ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <span>Single Destination Mode</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsBulkMode(true)}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                isBulkMode
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-indigo-600 dark:text-indigo-400 hover:text-indigo-700'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+              <span>⚡ Bulk Courier Form (Air / Rail / Multi-Stop)</span>
+              {bulkDestinations.length > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[10px] font-mono">
+                  {bulkDestinations.length}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Inline Animated Success Banner */}
         <AnimatePresence>

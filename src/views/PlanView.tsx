@@ -228,8 +228,8 @@ export const PlanView: React.FC<PlanViewProps> = ({
     const map = new Map<string, { dest: string; transporter: string; vType: string; count: number; totalWeight: number; totalCft: number; status: string; entryIds: string[]; isMilkRoute: boolean; hasCarriedForward: boolean }>();
     activePlanEntries.forEach((p) => {
       const tripClean = p.tripId ? String(p.tripId).trim().toUpperCase() : '';
-      let key = tripClean ? `TRIP_${tripClean}` : `${p.destination}_${p.transporter}_${p.vType}`;
-      let isGroupedMilkRoute = Boolean(tripClean);
+      let key = tripClean ? `TRIP_${tripClean}` : `${p.transporter || 'DHTC'}_${p.vType || '32SXL'}`;
+      let isGroupedMilkRoute = true;
       
       const pDest = String(p.destination || 'MUMBAI').trim().toUpperCase();
       const pTrans = String(p.transporter || '').trim().toUpperCase();
@@ -253,14 +253,12 @@ export const PlanView: React.FC<PlanViewProps> = ({
       }
 
       const item = map.get(key)!;
-      if (isGroupedMilkRoute) {
-        const dests = item.dest.split(' + ').map(d => d.trim().toUpperCase());
-        if (pDest && !dests.includes(pDest)) {
-          item.dest = `${item.dest} + ${pDest}`;
-        }
-        if (!item.transporter && pTrans) item.transporter = pTrans;
-        if (!item.vType && pVType) item.vType = pVType;
+      const dests = item.dest.split(' + ').map(d => d.trim().toUpperCase());
+      if (pDest && !dests.includes(pDest)) {
+        item.dest = `${item.dest} + ${pDest}`;
       }
+      if (!item.transporter && pTrans) item.transporter = pTrans;
+      if (!item.vType && pVType) item.vType = pVType;
 
       item.count += 1;
       item.totalWeight += pWeight;
