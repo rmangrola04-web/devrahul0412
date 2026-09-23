@@ -18,7 +18,6 @@ export const PlanView: React.FC<PlanViewProps> = ({
 }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
-  const [routeType, setRouteType] = useState<'Single Drop' | 'Milk Route'>('Single Drop');
   const [inlineEditId, setInlineEditId] = useState<string | null>(null);
   const [inlineEditField, setInlineEditField] = useState<'transporter' | 'vType' | 'mode' | null>(null);
   const [inlineEditVal, setInlineEditVal] = useState<string>('');
@@ -228,13 +227,9 @@ export const PlanView: React.FC<PlanViewProps> = ({
   const consolidatedGroups = React.useMemo(() => {
     const map = new Map<string, { dest: string; transporter: string; vType: string; count: number; totalWeight: number; totalCft: number; status: string; entryIds: string[]; isMilkRoute: boolean; hasCarriedForward: boolean }>();
     activePlanEntries.forEach((p) => {
-      let key = `${p.destination}_${p.transporter}_${p.vType}`;
-      let isGroupedMilkRoute = false;
-      
-      if (routeType === 'Milk Route' && p.tripId) {
-         key = `TRIP_${p.tripId}`;
-         isGroupedMilkRoute = true;
-      }
+      const tripClean = p.tripId ? String(p.tripId).trim().toUpperCase() : '';
+      let key = tripClean ? `TRIP_${tripClean}` : `${p.destination}_${p.transporter}_${p.vType}`;
+      let isGroupedMilkRoute = Boolean(tripClean);
       
       if (!map.has(key)) {
         map.set(key, {
@@ -272,7 +267,7 @@ export const PlanView: React.FC<PlanViewProps> = ({
       }
     });
     return Array.from(map.values());
-  }, [activePlanEntries, routeType]);
+  }, [activePlanEntries]);
 
   const handleStatusChange = (group: any, newStatus: string) => {
     try {
@@ -362,22 +357,8 @@ export const PlanView: React.FC<PlanViewProps> = ({
 
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center bg-slate-100 dark:bg-slate-900 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-                <button
-                  onClick={() => setRouteType('Single Drop')}
-                  className={`px-3 py-1 text-[10px] font-bold rounded-md transition-colors ${routeType === 'Single Drop' ? 'bg-white dark:bg-slate-700 shadow-xs text-blue-600 dark:text-blue-400' : 'text-slate-500'}`}
-                >
-                  Single Drop
-                </button>
-                <button
-                  onClick={() => setRouteType('Milk Route')}
-                  className={`px-3 py-1 text-[10px] font-bold rounded-md transition-colors ${routeType === 'Milk Route' ? 'bg-white dark:bg-slate-700 shadow-xs text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}`}
-                >
-                  Milk Route
-                </button>
-              </div>
-              <span className="text-[10px] text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 font-semibold px-2 py-1 rounded border border-blue-200 dark:border-blue-800 font-mono">
-                {consolidatedGroups.length} Groups
+              <span className="text-[10px] text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 font-bold px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800 font-mono">
+                {consolidatedGroups.length} Vehicle Groups
               </span>
             </div>
           </div>

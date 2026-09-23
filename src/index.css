@@ -771,14 +771,14 @@ table tbody tr:hover {
 
 /* Dark Mode (Default / .dark) */
 body, .app-container, html.dark body, body.dark {
-    background-color: #1a1f2c !important;
+    background-color: #1e2330 !important;
     color: #ffffff !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .card, .widget-card, html.dark .card, html.dark .widget-card, body.dark .card, body.dark .widget-card {
-    background-color: #242b3b !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #262d3d !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 12px !important;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2) !important;
     margin-bottom: 16px;
