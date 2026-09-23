@@ -865,6 +865,26 @@ html.light .sidebar .nav-link, body.light .sidebar .nav-link {
     font-weight: bold !important;
 }
 
+/* High Contrast Small Cards & Badges in Dark Mode */
+html.dark .bg-slate-50, body.dark .bg-slate-50,
+html.dark .bg-slate-100, body.dark .bg-slate-100,
+html.dark .bg-slate-200, body.dark .bg-slate-200 {
+    background-color: #313a4e !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark .text-slate-500, body.dark .text-slate-500,
+html.dark .text-slate-600, body.dark .text-slate-600,
+html.dark .text-slate-700, body.dark .text-slate-700 {
+    color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-800, body.dark .text-slate-800,
+html.dark .text-slate-900, body.dark .text-slate-900 {
+    color: #ffffff !important;
+}
+
 .force-light-text { color: #000000 !important; }
 
 

@@ -329,17 +329,21 @@ export function getConsolidatedPlanGroups(planEntries: PlanEntry[]) {
   }>();
 
   planEntries.forEach(p => {
-    let isMilk = false;
-    let key = `${(p.destination || '').trim().toUpperCase()}_${(p.transporter || '').trim().toUpperCase()}_${(p.vType || '').trim().toUpperCase()}`;
-    if (p.destination && (p.destination.includes('+') || p.destination.includes('/'))) {
-      isMilk = true;
-    }
+    const tripClean = p.tripId ? String(p.tripId).trim().toUpperCase() : '';
+    let key = tripClean ? `TRIP_${tripClean}` : `${(p.destination || '').trim().toUpperCase()}_${(p.transporter || '').trim().toUpperCase()}_${(p.vType || '').trim().toUpperCase()}`;
+    let isMilk = Boolean(tripClean) || Boolean(p.destination && (p.destination.includes('+') || p.destination.includes('/')));
+    
+    const pDest = String(p.destination || 'UNKNOWN').trim().toUpperCase();
+    const pTrans = String(p.transporter || '').trim().toUpperCase();
+    const pVType = String(p.vType || '').trim().toUpperCase();
+    const pWeight = Number(p.weight) || 0;
+    const pCft = Number(p.cft) || 0;
 
     if (!map.has(key)) {
       map.set(key, {
-        dest: p.destination || 'UNKNOWN',
-        transporter: p.transporter || 'N/A',
-        vType: p.vType || 'N/A',
+        dest: pDest,
+        transporter: pTrans || 'N/A',
+        vType: pVType || 'N/A',
         unit: (p.unit || (p as any).company || 'AHPL').toUpperCase(),
         count: 0,
         totalWeight: 0,
@@ -351,9 +355,22 @@ export function getConsolidatedPlanGroups(planEntries: PlanEntry[]) {
     }
 
     const item = map.get(key)!;
+    if (isMilk || tripClean) {
+      const dests = item.dest.split(' + ').map(d => d.trim().toUpperCase());
+      if (pDest && !dests.includes(pDest)) {
+        item.dest = `${item.dest} + ${pDest}`;
+      }
+      if (!item.transporter || item.transporter === 'N/A') {
+        if (pTrans) item.transporter = pTrans;
+      }
+      if (!item.vType || item.vType === 'N/A') {
+        if (pVType) item.vType = pVType;
+      }
+    }
+
     item.count += 1;
-    item.totalWeight += p.weight || 0;
-    item.totalCft += p.cft || 0;
+    item.totalWeight += pWeight;
+    item.totalCft += pCft;
     item.entryIds.push(p.id);
 
     const st = (p.status || '').toLowerCase();
