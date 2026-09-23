@@ -766,19 +766,18 @@ table tbody tr:hover {
 }
 
 /* ==========================
-   वार्म डार्क मोड थीम (Warm Dark Mode)
+   Light Mode & Dark Mode Theming
    ========================== */
 
-/* 1. मुख्य बैकग्राउंड - रिच वार्म ग्रे (#1A1D21) */
-body, .app-container {
-    background-color: #1A1D21 !important;
-    color: #FFFFFF !important; /* सभी टेक्स्ट डिफ़ॉल्ट शुद्ध सफ़ेद (#FFFFFF) */
+/* Dark Mode (Default / .dark) */
+body, .app-container, html.dark body, body.dark {
+    background-color: #1a1f2c !important;
+    color: #ffffff !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* 2. कार्ड्स - थोड़ा हल्का वार्म ग्रे (#25282C) और स्पष्ट बॉर्डर */
-.card, .widget-card {
-    background-color: #25282C !important;
+.card, .widget-card, html.dark .card, html.dark .widget-card, body.dark .card, body.dark .widget-card {
+    background-color: #242b3b !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2) !important;
@@ -786,16 +785,31 @@ body, .app-container {
     padding: 20px !important;
 }
 
-/* 3. कार्ड के भीतर का टेक्स्ट - हमेशा शुद्ध सफ़ेद */
 .card h3, .card p, .card span, .card label, .metric-value {
-    color: #FFFFFF !important;
+    color: #ffffff !important;
     font-weight: 500 !important;
 }
 
-/* 4. कलर पैलेट रिफ्रेश (वार्म एकेंट्स) */
+/* Light Mode (.light) */
+html.light body, body.light {
+    background-color: #f0f7ff !important;
+    color: #0f172a !important;
+}
+
+html.light .card, html.light .widget-card, body.light .card, body.light .widget-card {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .card h3, html.light .card p, html.light .card span, html.light .card label, html.light .metric-value {
+    color: #0f172a !important;
+}
+
+/* Color Palette Accents */
 .status-badge-blue, .accent-sky-blue {
     background-color: rgba(56, 189, 248, 0.15) !important;
-    color: #38BDF8 !important; /* वार्म स्काई ब्लू */
+    color: #38BDF8 !important;
     border: 1px solid #38BDF8 !important;
     padding: 4px 8px !important;
     border-radius: 6px !important;
@@ -804,7 +818,7 @@ body, .app-container {
 
 .status-badge-amber, .accent-golden-amber {
     background-color: rgba(251, 191, 36, 0.15) !important;
-    color: #FBBF24 !important; /* रिच वार्म गोल्डन एम्बर */
+    color: #FBBF24 !important;
     border: 1px solid #FBBF24 !important;
     padding: 4px 8px !important;
     border-radius: 6px !important;
@@ -813,7 +827,7 @@ body, .app-container {
 
 .status-badge-green, .accent-mint-green {
     background-color: rgba(52, 211, 153, 0.15) !important;
-    color: #34D399 !important; /* फ्रेश वार्म मिंट ग्रीन */
+    color: #34D399 !important;
     border: 1px solid #34D399 !important;
     padding: 4px 8px !important;
     border-radius: 6px !important;
@@ -826,23 +840,31 @@ body, .app-container {
     border: 1px solid #FB923C !important; 
 }
 
-/* 5. नेविगेशन/साइडबार - रिच वार्म ग्रे पैनल */
+/* Sidebar Styling */
 .sidebar {
-    background-color: #25282C !important;
+    background-color: #242b3b !important;
     border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
+html.light .sidebar, body.light .sidebar {
+    background-color: #ffffff !important;
+    border-right: 1px solid #cbd5e1 !important;
+}
+
 .sidebar .nav-link {
-    color: #E2E8F0 !important;
+    color: #e2e8f0 !important;
     border-radius: 8px !important;
     margin: 4px 8px !important;
 }
+html.light .sidebar .nav-link, body.light .sidebar .nav-link {
+    color: #334155 !important;
+}
+
 .sidebar .nav-link.active {
-    background-color: #38BDF8 !important; /* वार्म स्काई ब्लू */
-    color: #1A1D21 !important;
+    background-color: #38BDF8 !important;
+    color: #1a1f2c !important;
     font-weight: bold !important;
 }
 
-/* 6. फोर्स लाइट टेक्स्ट */
 .force-light-text { color: #000000 !important; }
 
 
